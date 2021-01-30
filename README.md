@@ -42,3 +42,4 @@ https://www.veritone.com/blog/how-i-write-go-http-services-after-seven-years/
         the validation option while non is available
 - COULD allow passing validation options, such as "filter", "except" and allow use of the "var" validation
 - SHOULD add session options to configure how the session is saved
+- SHOULD add an option to make all generated urls on top of a basepath

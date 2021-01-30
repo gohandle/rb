@@ -13,7 +13,7 @@ import (
 )
 
 func TestBind(t *testing.T) {
-	a := rb.New(form.NewDecoder(), nil, validator.New(), nil)
+	a := rb.New(form.NewDecoder(), nil, validator.New(), nil, nil)
 
 	t.Run("bind form", func(t *testing.T) {
 		b := strings.NewReader((url.Values{"Foo": {"bar"}}).Encode())

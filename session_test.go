@@ -10,9 +10,9 @@ import (
 
 func TestSession(t *testing.T) {
 	var k [32]byte
-	a := rb.New(nil, nil, nil, sessions.NewCookieStore(k[:]))
-	t.Run("session setting", func(t *testing.T) {
+	a := rb.New(nil, nil, nil, sessions.NewCookieStore(k[:]), nil)
 
+	t.Run("session setting", func(t *testing.T) {
 		w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
 		sess := a.Session(w, r, rb.SessionName("foo")).Set("x", "y").Set("z", "b")
 
@@ -24,5 +24,4 @@ func TestSession(t *testing.T) {
 			t.Fatalf("got: %v", act)
 		}
 	})
-
 }
