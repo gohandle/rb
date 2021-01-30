@@ -34,3 +34,6 @@ https://www.veritone.com/blog/how-i-write-go-http-services-after-seven-years/
 ## TODO
 - MUST be able to use a.URL() directly into a.Render with Redirect()
 - COULD allow default template options that are applied on each render
+- COULD implement multi-render and multi-bind that does it based on content types and accept headers
+- SHOULD add options to FormBind that selects which part of the request the bind will perform
+- COULD add an empty bind that just calls parse Form
