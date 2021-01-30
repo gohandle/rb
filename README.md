@@ -37,3 +37,6 @@ https://www.veritone.com/blog/how-i-write-go-http-services-after-seven-years/
 - COULD implement multi-render and multi-bind that does it based on content types and accept headers
 - SHOULD add options to FormBind that selects which part of the request the bind will perform
 - COULD add an empty bind that just calls parse Form
+- COULD make the validator optional to provide, but it should error cleary if bind is called with
+        the validation option while non is available
+- COULD allow passing validation options, such as "filter", "except" and allow use of the "var" validation
