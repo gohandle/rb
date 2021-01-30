@@ -31,6 +31,7 @@ https://www.veritone.com/blog/how-i-write-go-http-services-after-seven-years/
 - Monitor and reload when static files change
 - Must be able to retrieve Params from a request
 
+
 ## TODO
 - MUST be able to use a.URL() directly into a.Render with Redirect()
 - COULD allow default template options that are applied on each render
@@ -40,3 +41,4 @@ https://www.veritone.com/blog/how-i-write-go-http-services-after-seven-years/
 - COULD make the validator optional to provide, but it should error cleary if bind is called with
         the validation option while non is available
 - COULD allow passing validation options, such as "filter", "except" and allow use of the "var" validation
+- SHOULD add session options to configure how the session is saved

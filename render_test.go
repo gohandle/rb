@@ -11,7 +11,7 @@ import (
 func TestRender(t *testing.T) {
 	l := jet.NewInMemLoader()
 	l.Set("foo.html", `{{.}}{{ bar }}`)
-	a := rb.New(nil, jet.NewSet(l), nil)
+	a := rb.New(nil, jet.NewSet(l), nil, nil)
 
 	t.Run("render template", func(t *testing.T) {
 		w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
