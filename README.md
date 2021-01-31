@@ -19,7 +19,7 @@ Thesis: what if every handler get's created by fx, with its dependencies?
 
 https://www.veritone.com/blog/how-i-write-go-http-services-after-seven-years/
 
-## TODO Sunday Release
+## Feature TODO
 - [x] helper for url
 - [x] error pages for rendering
 - [x] rbtest for easy assertions
@@ -27,20 +27,13 @@ https://www.veritone.com/blog/how-i-write-go-http-services-after-seven-years/
 - [ ] field based errors (settle on validation first)
 - [ ] structural logging for each part (with request scoped logging)
 - [ ] helper for i18n
-- [ ] helper for session data
 - [ ] integrated CSRF 
 
-## Ideas
-- Come with I18n
-- Come with flash messages
-- Come with template render
-- Come with form binding
-- Come with template helpers
+## Future Ideas
 - Come with live reload of loaded templates
 - Come with pretty error pages in development
 - Come with a neat logging window in development
-- Monitor and reload when static files change
-- Must be able to retrieve Params from a request
+- Asset helpders with Monitor and reload when they change
 
 ## i18n
 - Jet translator interface: https://pkg.go.dev/github.com/CloudyKit/jet#Translator
