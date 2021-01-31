@@ -37,6 +37,7 @@ func New(
 	}
 
 	view.AddGlobalFunc("url", a.urlHelper)
+	view.AddGlobalFunc("field_error", a.fieldErrorHelper)
 	return a
 }
 

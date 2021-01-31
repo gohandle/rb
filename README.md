@@ -24,10 +24,17 @@ https://www.veritone.com/blog/how-i-write-go-http-services-after-seven-years/
 - [x] error pages for rendering
 - [x] rbtest for easy assertions
 - [x] allow easy flash messages from session: ReadAndDelete
-- [ ] field based errors (settle on validation first)
+- [x] field based errors (settle on validation first)
 - [ ] structural logging for each part (with request scoped logging)
-- [ ] helper for i18n
+- [ ] helper for i18n, especially for translating validation messages
 - [ ] integrated CSRF 
+
+## Validation Options
+- https://github.com/go-playground/validator (oct 2020, ~7k, big boy)
+- https://github.com/thedevsaddam/govalidator (apr 2020, ~1k, laravel inspired)
+- https://github.com/asaskevich/govalidator (okt 2020, ~4.6k, inspired by validator.js)
+- https://github.com/go-ozzo/ozzo-validation (oct 2020, ~1.9k, no tags)
+- github.com/gookit/validate (jan 2021, ~400, good track record of releases)
 
 ## Future Ideas
 - Come with live reload of loaded templates
@@ -54,3 +61,6 @@ https://www.veritone.com/blog/how-i-write-go-http-services-after-seven-years/
         such that error messages only show part of the html when it fails
 - SHOULD add session options to configure how the session is saved
 - SHOULD add an option to make all generated urls on top of a basepath
+- SHOULD have SOME documentation
+- COULD add integration point and allow users to provide their own checks for the field_error helper
+        so they can bring their own validator.
