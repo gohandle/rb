@@ -2,14 +2,17 @@ package rb
 
 import "net/http"
 
-type InjectorFunc func(a *App, v interface{}) error
+type InjectorFunc func(a *App, w http.ResponseWriter, req *http.Request, v interface{}) error
 
-func (f InjectorFunc) OnRender(a *App, v interface{}) error {
-	return f(a, v)
+func (f InjectorFunc) OnRender(a *App, w http.ResponseWriter, req *http.Request, v interface{}) error {
+	return f(a, w, req, v)
 }
 
+// Injector can be implemented to allow hooks to be called just before the body is rendered. The
+// ResponseWriter is provided to allow for the reading of headers, but at this point in the
+// lifecycle the header is already written and cannot be changed.
 type Injector interface {
-	OnRender(a *App, v interface{}) error
+	OnRender(a *App, w http.ResponseWriter, req *http.Request, v interface{}) error
 }
 
 type renderInject struct {
@@ -28,7 +31,7 @@ func (r renderInject) RenderHeader(a *App, w http.ResponseWriter, req *http.Requ
 }
 
 func (r renderInject) Render(a *App, wr http.ResponseWriter, req *http.Request) error {
-	if err := r.inj.OnRender(a, r.val); err != nil {
+	if err := r.inj.OnRender(a, wr, req, r.val); err != nil {
 		return err // injector failed
 	}
 

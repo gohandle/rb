@@ -1,6 +1,7 @@
 package rb
 
 import (
+	"net/http"
 	"net/http/httptest"
 	"testing"
 
@@ -13,7 +14,7 @@ func TestInjector(t *testing.T) {
 		w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
 
 		var called int
-		a.Render(w, r, Inject(Redirect("/"), InjectorFunc(func(a *App, v interface{}) error {
+		a.Render(w, r, Inject(Redirect("/"), InjectorFunc(func(a *App, _ http.ResponseWriter, _ *http.Request, v interface{}) error {
 			called++
 			return nil
 		})), Status(303))
