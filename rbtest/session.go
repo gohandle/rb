@@ -11,14 +11,6 @@ import (
 // testSession implements rb.Session but only allows reading
 type testSession struct{ vals map[interface{}]interface{} }
 
-func (s testSession) Del(k interface{}) rb.Session {
-	panic("rbtest: test session only supports Get(k)")
-}
-
-func (s testSession) Set(k, v interface{}) rb.Session {
-	panic("rbtest: test session only supports Get(k)")
-}
-
 func (s *testSession) Get(k interface{}) (v interface{}) {
 	if s.vals == nil {
 		s.vals = make(map[interface{}]interface{})
@@ -28,7 +20,7 @@ func (s *testSession) Get(k interface{}) (v interface{}) {
 	return
 }
 
-func ReadSession(tb testing.TB, s *sessions.CookieStore, name, rawCookie string) rb.Session {
+func ReadSession(tb testing.TB, s *sessions.CookieStore, name, rawCookie string) rb.SessionReader {
 	c, err := parseCookie(rawCookie, name)
 	if err != nil {
 		fatalf(tb, "failed to parse Set-Cookie header name=%s (%s): %v", name, rawCookie, err)

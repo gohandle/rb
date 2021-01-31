@@ -6,10 +6,14 @@ import (
 	"github.com/gorilla/sessions"
 )
 
+type SessionReader interface {
+	Get(k interface{}) (v interface{})
+}
+
 type Session interface {
 	Set(k, v interface{}) Session
 	Del(k interface{}) Session
-	Get(k interface{}) (v interface{})
+	SessionReader
 }
 
 type session struct {
