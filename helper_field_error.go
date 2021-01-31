@@ -8,20 +8,44 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+func castErrArg(rv reflect.Value) (error, bool) {
+	if (rv == reflect.Value{}) || rv.Interface() == nil {
+		return nil, true
+	}
+
+	err, ok := rv.Interface().(error)
+	if !ok {
+		return nil, false
+	}
+
+	return err, true
+}
+
+func (a *App) nonFieldErrorHelper(args jet.Arguments) (v reflect.Value) {
+	args.RequireNumOfArguments("non_field_error", 1, 1)
+
+	err, ok := castErrArg(args.Get(0))
+	if !ok {
+		args.Panicf("rb/non-field-error-helper: first argument must be an error type, got: %T", args.Get(0).Interface())
+	}
+
+	if _, ok := err.(interface{ Field() string }); ok {
+		return reflect.ValueOf("")
+	}
+
+	var verr validator.ValidationErrors
+	if errors.As(err, &verr) {
+		return reflect.ValueOf("")
+	}
+
+	return reflect.ValueOf(err)
+}
+
 func (a *App) fieldErrorHelper(args jet.Arguments) (v reflect.Value) {
-	args.RequireNumOfArguments("url", 2, 2)
+	args.RequireNumOfArguments("field_error", 2, 2)
 	fname := args.Get(1).String()
 
-	if (args.Get(0) == reflect.Value{}) {
-		return reflect.ValueOf("") // passed in nil, also don't do anything
-	}
-
-	erri := args.Get(0).Interface()
-	if erri == nil {
-		return reflect.ValueOf("") // no error to display
-	}
-
-	err, ok := args.Get(0).Interface().(error)
+	err, ok := castErrArg(args.Get(0))
 	if !ok {
 		args.Panicf("rb/field-error-helper: first argument must be an error type, got: %T", args.Get(0).Interface())
 	}

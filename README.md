@@ -25,6 +25,7 @@ https://www.veritone.com/blog/how-i-write-go-http-services-after-seven-years/
 - [x] rbtest for easy assertions
 - [x] allow easy flash messages from session: ReadAndDelete
 - [x] field based errors (settle on validation first)
+- [x] helper for non_field errors
 - [ ] structural logging for each part (with request scoped logging)
 - [ ] helper for i18n, especially for translating validation messages
 - [ ] integrated CSRF 
@@ -59,6 +60,8 @@ https://www.veritone.com/blog/how-i-write-go-http-services-after-seven-years/
         the error handler that  the header was written already
 - COULD add more assertion utilites to our rbtest.Document type, would be cool if we could scope assertion
         such that error messages only show part of the html when it fails
+- COULD add a helper that renders (field) errors that have not been rendered yet, that means keeping
+        track of what has been rendered. But can be helpfull for debugging
 - SHOULD add session options to configure how the session is saved
 - SHOULD add an option to make all generated urls on top of a basepath
 - SHOULD have SOME documentation

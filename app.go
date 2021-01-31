@@ -38,6 +38,7 @@ func New(
 
 	view.AddGlobalFunc("url", a.urlHelper)
 	view.AddGlobalFunc("field_error", a.fieldErrorHelper)
+	view.AddGlobalFunc("non_field_error", a.nonFieldErrorHelper)
 	return a
 }
 

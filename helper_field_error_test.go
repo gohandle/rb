@@ -1,6 +1,7 @@
 package rb
 
 import (
+	"errors"
 	"net/http/httptest"
 	"net/url"
 	"strings"
@@ -49,7 +50,7 @@ func TestValidationRendering(t *testing.T) {
 	})
 
 	t.Run("ok for custom error", func(t *testing.T) {
-		templates.Set("t3.html", `{{ field_error(., "foo") }}`)
+		templates.Set("t3.html", `{{ non_field_error(.) }}{{ field_error(., "foo") }}`)
 
 		var v error
 		v = testValError{}
@@ -63,7 +64,7 @@ func TestValidationRendering(t *testing.T) {
 	})
 
 	t.Run("ok for bind with validate", func(t *testing.T) {
-		templates.Set("t4.html", `{{ field_error(.Err, "Foo") }}`)
+		templates.Set("t4.html", `{{ non_field_error(.Err) }}{{ field_error(.Err, "Foo") }}`)
 
 		var v struct {
 			Err error
@@ -82,6 +83,21 @@ func TestValidationRendering(t *testing.T) {
 		a.Render(w, r, Template("t4.html", v))
 
 		if act := w.Body.String(); act != `failed to validate: Key: &#39;Foo&#39; Error:Field validation for &#39;Foo&#39; failed on the &#39;required&#39; tag` {
+			t.Fatalf("got: %v", act)
+		}
+	})
+
+	t.Run("non field error", func(t *testing.T) {
+		templates.Set("t5.html", `{{ non_field_error(.Err)}}`)
+
+		var v struct{ Err error }
+		v.Err = errors.New("foo")
+
+		w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
+		a.Render(w, r, Template("t5.html", v))
+
+		// NOTE: resolving to a field that is a nil error should also result in nothing
+		if act := w.Body.String(); act != `foo` {
 			t.Fatalf("got: %v", act)
 		}
 	})
