@@ -1,6 +1,8 @@
 package rb
 
 import (
+	"net/http"
+
 	"github.com/CloudyKit/jet/v6"
 	"github.com/go-playground/form/v4"
 	"github.com/go-playground/validator/v10"
@@ -14,6 +16,9 @@ type App struct {
 	val  *validator.Validate
 	sess sessions.Store
 	mux  *mux.Router
+
+	// ErrHandler can be configured to get called when an error occured during rendering
+	ErrHandler func(a *App, w http.ResponseWriter, r *http.Request, err error) error
 }
 
 func New(

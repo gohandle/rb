@@ -20,14 +20,15 @@ Thesis: what if every handler get's created by fx, with its dependencies?
 https://www.veritone.com/blog/how-i-write-go-http-services-after-seven-years/
 
 ## TODO Sunday Release
-- [ ] helper for url
-- error pages for rendering
-- structural logging for each part (with request scoped logging)
-- rbtest for easy assertions
-- field based errors (settle on validation first)
-- helper for i18n
-- helper for session data
-- integrated CSRF 
+- [x] helper for url
+- [x] error pages for rendering
+- [ ] rbtest for easy assertions
+- [ ] allow easy flash messages from session: ReadAndDelete
+- [ ] structural logging for each part (with request scoped logging)
+- [ ] field based errors (settle on validation first)
+- [ ] helper for i18n
+- [ ] helper for session data
+- [ ] integrated CSRF 
 
 ## Ideas
 - Come with I18n
@@ -54,5 +55,7 @@ https://www.veritone.com/blog/how-i-write-go-http-services-after-seven-years/
 - COULD make the validator optional to provide, but it should error cleary if bind is called with
         the validation option while non is available
 - COULD allow passing validation options, such as "filter", "except" and allow use of the "var" validation
+- COULD find a way to know for sure if the header was already written and have a flag to indicate to 
+        the error handler that  the header was written already
 - SHOULD add session options to configure how the session is saved
 - SHOULD add an option to make all generated urls on top of a basepath
