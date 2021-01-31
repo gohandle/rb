@@ -3,6 +3,7 @@ package rb_test
 import (
 	"testing"
 
+	"github.com/CloudyKit/jet/v6"
 	"github.com/gohandle/rb"
 	"github.com/gorilla/mux"
 )
@@ -12,7 +13,7 @@ func TestURLGeneration(t *testing.T) {
 	r.Name("foo").Path("/foo/{id}/bar")
 	r.Name("with_host").Host("localhost:9090").Path("/bar").Schemes("ftp")
 
-	a := rb.New(nil, nil, nil, nil, r)
+	a := rb.New(nil, jet.NewSet(jet.NewInMemLoader()), nil, nil, r)
 
 	if act := a.URL("/foo/bar"); act != "/foo/bar" {
 		t.Fatalf("got: %v", act)

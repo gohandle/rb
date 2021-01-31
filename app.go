@@ -23,13 +23,16 @@ func New(
 	sess sessions.Store,
 	mux *mux.Router,
 ) *App {
-	return &App{
+	a := &App{
 		fdec: fdec,
 		view: view,
 		val:  val,
 		sess: sess,
 		mux:  mux,
 	}
+
+	view.AddGlobalFunc("url", a.urlHelper)
+	return a
 }
 
 type RenderBind interface {
