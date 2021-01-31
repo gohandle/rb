@@ -4,6 +4,7 @@ go 1.15
 
 require (
 	github.com/CloudyKit/jet/v6 v6.0.2
+	github.com/PuerkitoBio/goquery v1.6.1
 	github.com/go-playground/form/v4 v4.1.1
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/gorilla/mux v1.8.0
