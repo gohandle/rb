@@ -23,7 +23,7 @@ https://www.veritone.com/blog/how-i-write-go-http-services-after-seven-years/
 - [x] helper for url
 - [x] error pages for rendering
 - [x] rbtest for easy assertions
-- [ ] allow easy flash messages from session: ReadAndDelete
+- [x] allow easy flash messages from session: ReadAndDelete
 - [ ] field based errors (settle on validation first)
 - [ ] structural logging for each part (with request scoped logging)
 - [ ] helper for i18n

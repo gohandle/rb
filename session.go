@@ -13,6 +13,7 @@ type SessionReader interface {
 type Session interface {
 	Set(k, v interface{}) Session
 	Del(k interface{}) Session
+	Pop(k interface{}) (v interface{})
 	SessionReader
 }
 
@@ -43,6 +44,15 @@ func (s session) Set(k, v interface{}) Session {
 func (s session) Get(k interface{}) (v interface{}) {
 	v, _ = s.s.Values[k]
 	return
+}
+
+func (s session) Pop(k interface{}) interface{} {
+	v, ok := s.s.Values[k]
+	if ok {
+		s.Del(k)
+	}
+
+	return v
 }
 
 type sessionOpts struct {
