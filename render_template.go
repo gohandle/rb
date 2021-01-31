@@ -11,9 +11,11 @@ type TemplateRenderOption func(*templateRender)
 
 type templateRender struct {
 	name string
-	data interface{}
+	val  interface{}
 	vars jet.VarMap
 }
+
+func (r templateRender) Value() interface{} { return r.val }
 
 func (r templateRender) Render(a *App, wr http.ResponseWriter, req *http.Request) error {
 	tmpl, err := a.view.GetTemplate(r.name)
@@ -21,7 +23,7 @@ func (r templateRender) Render(a *App, wr http.ResponseWriter, req *http.Request
 		return fmt.Errorf("failed to get template: %w", err)
 	}
 
-	return tmpl.Execute(wr, r.vars, r.data)
+	return tmpl.Execute(wr, r.vars, r.val)
 }
 
 func TemplateVar(name string, v interface{}) TemplateRenderOption {
@@ -36,7 +38,7 @@ func TemplateVar(name string, v interface{}) TemplateRenderOption {
 
 func Template(name string, data interface{}, opts ...TemplateRenderOption) Render {
 	r := templateRender{
-		name: name, data: data}
+		name: name, val: data}
 	for _, opt := range opts {
 		opt(&r)
 	}

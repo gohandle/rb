@@ -12,6 +12,7 @@ type HeaderRender interface {
 
 type Render interface {
 	Render(a *App, w http.ResponseWriter, r *http.Request) error
+	Value() interface{}
 }
 
 type renderOpts struct {

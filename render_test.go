@@ -61,6 +61,7 @@ func (r errHeaderRender) RenderHeader(a *rb.App, w http.ResponseWriter, req *htt
 	return status, errors.New("expected error")
 }
 
+func (r errHeaderRender) Value() interface{} { return nil }
 func (r errHeaderRender) Render(a *rb.App, wr http.ResponseWriter, req *http.Request) error {
 	return nil
 }

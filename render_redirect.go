@@ -11,6 +11,7 @@ func (r redirectRender) RenderHeader(a *App, w http.ResponseWriter, req *http.Re
 	return status, nil
 }
 
+func (r redirectRender) Value() interface{} { return nil }
 func (r redirectRender) Render(a *App, wr http.ResponseWriter, req *http.Request) error {
 	return nil
 }

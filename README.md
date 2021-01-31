@@ -48,6 +48,7 @@ https://www.veritone.com/blog/how-i-write-go-http-services-after-seven-years/
 - Validator translator: https://github.com/go-playground/validator/blob/master/_examples/translations/main.go
 
 ## TODO
+- MUST FIX: default error handler fails (probably because rendering is halfway)
 - MUST be able to use a.URL() directly into a.Render with Redirect()
 - COULD allow default template options that are applied on each render
 - COULD implement multi-render and multi-bind that does it based on content types and accept headers
