@@ -8,6 +8,7 @@ import (
 
 type Session interface {
 	Set(k, v interface{}) Session
+	Del(k interface{}) Session
 	Get(k interface{}) (v interface{})
 }
 

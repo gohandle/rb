@@ -22,10 +22,10 @@ https://www.veritone.com/blog/how-i-write-go-http-services-after-seven-years/
 ## TODO Sunday Release
 - [x] helper for url
 - [x] error pages for rendering
-- [ ] rbtest for easy assertions
+- [x] rbtest for easy assertions
 - [ ] allow easy flash messages from session: ReadAndDelete
-- [ ] structural logging for each part (with request scoped logging)
 - [ ] field based errors (settle on validation first)
+- [ ] structural logging for each part (with request scoped logging)
 - [ ] helper for i18n
 - [ ] helper for session data
 - [ ] integrated CSRF 
@@ -57,5 +57,7 @@ https://www.veritone.com/blog/how-i-write-go-http-services-after-seven-years/
 - COULD allow passing validation options, such as "filter", "except" and allow use of the "var" validation
 - COULD find a way to know for sure if the header was already written and have a flag to indicate to 
         the error handler that  the header was written already
+- COULD add more assertion utilites to our rbtest.Document type, would be cool if we could scope assertion
+        such that error messages only show part of the html when it fails
 - SHOULD add session options to configure how the session is saved
 - SHOULD add an option to make all generated urls on top of a basepath
