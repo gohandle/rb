@@ -53,7 +53,7 @@ https://www.veritone.com/blog/how-i-write-go-http-services-after-seven-years/
 - [x] MUST: default error handler fails (probably because rendering is halfway)
 - [ ] SHOULD rethink injectors, current implementation was build in a hurry
 - [x] MUST be able to use a.URL() directly into a.Render with Redirect()
-- [ ] SHOULD add options to FormBind that selects which part of the request the bind will perform
+- [x] SHOULD add options to FormBind that selects which part of the request the bind will perform
 - [ ] COULD allow default template options that are applied on each render
 - [ ] COULD implement multi-render and multi-bind that does it based on content types and accept headers
 - [ ] COULD add an empty bind that just calls parse Form

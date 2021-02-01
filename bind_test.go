@@ -18,17 +18,50 @@ func TestBind(t *testing.T) {
 
 	t.Run("bind form", func(t *testing.T) {
 		b := strings.NewReader((url.Values{"Foo": {"bar"}}).Encode())
-		r := httptest.NewRequest("POST", "/", b)
+		r := httptest.NewRequest("POST", "/?Bar=rab", b)
 		r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-		var v struct{ Foo string }
-		if err := a.Bind(r, rb.FormBind(&v)); err != nil {
-			t.Fatalf("got: %v", err)
-		}
+		t.Run("default", func(t *testing.T) {
+			var v struct {
+				Foo string
+				Bar string
+			}
+			if err := a.Bind(r, rb.FormBind(&v)); err != nil {
+				t.Fatalf("got: %v", err)
+			}
 
-		if v.Foo != "bar" {
-			t.Fatalf("got: %v", v)
-		}
+			if v.Foo != "bar" || v.Bar != "rab" {
+				t.Fatalf("got: %v", v)
+			}
+		})
+
+		t.Run("post form", func(t *testing.T) {
+			var v struct {
+				Foo string
+				Bar string
+			}
+			if err := a.Bind(r, rb.FormBind(&v, rb.FromSource(rb.PostForm))); err != nil {
+				t.Fatalf("got: %v", err)
+			}
+
+			if v.Foo != "bar" || v.Bar != "" {
+				t.Fatalf("got: %v", v)
+			}
+		})
+
+		t.Run("query", func(t *testing.T) {
+			var v struct {
+				Foo string
+				Bar string
+			}
+			if err := a.Bind(r, rb.FormBind(&v, rb.FromSource(rb.Query))); err != nil {
+				t.Fatalf("got: %v", err)
+			}
+
+			if v.Foo != "" || v.Bar != "rab" {
+				t.Fatalf("got: %v", v)
+			}
+		})
 	})
 
 	t.Run("bind json", func(t *testing.T) {

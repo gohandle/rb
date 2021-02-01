@@ -10,9 +10,33 @@ type Bind interface {
 	Value() (v interface{})
 }
 
-type formBind struct{ v interface{} }
+type ValueSource int
 
-func FormBind(v interface{}) Bind { return formBind{v} }
+const (
+	Form ValueSource = iota
+	Query
+	PostForm
+)
+
+type formBind struct {
+	v interface{}
+	s ValueSource
+}
+
+type FormBindOption func(*formBind)
+
+func FromSource(s ValueSource) FormBindOption {
+	return func(o *formBind) { o.s = s }
+}
+
+func FormBind(v interface{}, opts ...FormBindOption) Bind {
+	b := formBind{v, Form}
+	for _, opt := range opts {
+		opt(&b)
+	}
+
+	return b
+}
 
 func (b formBind) Value() interface{} { return b.v }
 
@@ -21,7 +45,16 @@ func (b formBind) Bind(a *App, r *http.Request) error {
 		return err
 	}
 
-	return a.fdec.Decode(b.v, r.PostForm)
+	switch b.s {
+	case Form:
+		return a.fdec.Decode(b.v, r.Form)
+	case Query:
+		return a.fdec.Decode(b.v, r.URL.Query())
+	case PostForm:
+		return a.fdec.Decode(b.v, r.PostForm)
+	default:
+		return fmt.Errorf("unsupported bind source: %T", b.s)
+	}
 }
 
 type bindOptions struct {
