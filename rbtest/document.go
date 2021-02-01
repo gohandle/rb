@@ -1,6 +1,7 @@
 package rbtest
 
 import (
+	"bytes"
 	"io"
 	"testing"
 
@@ -13,16 +14,22 @@ var fatalf = func(tb testing.TB, format string, args ...interface{}) {
 
 type Doc struct {
 	*goquery.Document
-	tb testing.TB
+	tb   testing.TB
+	read *bytes.Buffer
 }
 
 func MustParseHtml(tb testing.TB, r io.Reader) *Doc {
-	doc, err := goquery.NewDocumentFromReader(r)
+	read := bytes.NewBuffer(nil)
+	doc, err := goquery.NewDocumentFromReader(io.TeeReader(r, read))
 	if err != nil {
 		fatalf(tb, "rbtest: failed to create document from reader: %v", err)
 	}
 
-	return &Doc{doc, tb}
+	return &Doc{doc, tb, read}
+}
+
+func (d *Doc) ReadHTML() string {
+	return d.read.String()
 }
 
 func (d *Doc) MustHtml() string {

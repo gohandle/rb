@@ -99,6 +99,26 @@ func TestRenderError(t *testing.T) {
 		}
 	})
 
+	t.Run("template render error", func(t *testing.T) {
+		l.Set("fail.html", `foobar {{.bogus}}foo`)
+		w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
+		a.Render(w, r, rb.Template("fail.html", "fail"), rb.Status(202))
+
+		// NOTE: because the response was already underway when the error occured
+		if w.Code != 202 {
+			t.Fatalf("got: %v", w.Code)
+		}
+
+		// we expect the template error to be rendered as it occurs in the response
+		if !strings.HasPrefix(w.Body.String(), `foobar `) {
+			t.Fatalf("got: %v", w.Body.String())
+		}
+
+		if !strings.HasSuffix(w.Body.String(), `cannot index slice/array/string with type string`+"\n") {
+			t.Fatalf("got: %v", w.Body.String())
+		}
+	})
+
 	t.Run("failing error handling", func(t *testing.T) {
 		defer func() {
 			var s string

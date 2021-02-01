@@ -48,23 +48,28 @@ https://www.veritone.com/blog/how-i-write-go-http-services-after-seven-years/
 - Validator translator: https://github.com/go-playground/validator/blob/master/_examples/translations/main.go
 
 ## TODO
-- MUST FIX: default error handler fails (probably because rendering is halfway)
-- MUST be able to use a.URL() directly into a.Render with Redirect()
-- COULD allow default template options that are applied on each render
-- COULD implement multi-render and multi-bind that does it based on content types and accept headers
-- SHOULD add options to FormBind that selects which part of the request the bind will perform
-- COULD add an empty bind that just calls parse Form
-- COULD make the validator optional to provide, but it should error cleary if bind is called with
-        the validation option while non is available
-- COULD allow passing validation options, such as "filter", "except" and allow use of the "var" validation
-- COULD find a way to know for sure if the header was already written and have a flag to indicate to 
-        the error handler that  the header was written already
-- COULD add more assertion utilites to our rbtest.Document type, would be cool if we could scope assertion
-        such that error messages only show part of the html when it fails
-- COULD add a helper that renders (field) errors that have not been rendered yet, that means keeping
-        track of what has been rendered. But can be helpfull for debugging
-- SHOULD add session options to configure how the session is saved
-- SHOULD add an option to make all generated urls on top of a basepath
-- SHOULD have SOME documentation
-- COULD add integration point and allow users to provide their own checks for the field_error helper
-        so they can bring their own validator.
+- [ ] MUST FIX: rb.Redirect shoul also set the status code to some redirect status if the user doesn't 
+            set it since then the redirect won't work at all
+- [x] MUST: default error handler fails (probably because rendering is halfway)
+- [ ] SHOULD rethink injectors, current implementation was build in a hurry
+- [x] MUST be able to use a.URL() directly into a.Render with Redirect()
+- [ ] SHOULD add options to FormBind that selects which part of the request the bind will perform
+- [ ] COULD allow default template options that are applied on each render
+- [ ] COULD implement multi-render and multi-bind that does it based on content types and accept headers
+- [ ] COULD add an empty bind that just calls parse Form
+- [ ] COULD make the validator optional to provide, but it should error cleary if bind is called with
+            the validation option while non is available
+- [ ] COULD allow passing validation options, such as "filter", "except" and allow use of the "var" validation
+- [ ] COULD find a way to know for sure if the header was already written and have a flag to indicate to 
+            the error handler that  the header was written already
+- [ ] COULD add more assertion utilites to our rbtest.Document type, would be cool if we could scope assertion
+            such that error messages only show part of the html when it fails
+- [ ] COULD add a helper that renders (field) errors that have not been rendered yet, that means keeping
+            track of what has been rendered. But can be helpfull for debugging
+- [ ] COULD add session options to configure how the session is saved (expires, etc)
+- [ ] COULD add an option to make all generated urls on top of a basepath
+- [ ] COULD have SOME documentation
+- [ ] COULD add integration point and allow users to provide their own checks for the field_error helper
+            so they can bring their own validator and still filter errors for a certain field
+- [ ] COULD add a rendering option that buffers the response so rendering errors can be shows a 
+            a completely new page (Possibly with dev options)

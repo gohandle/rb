@@ -39,4 +39,8 @@ func TestMustParseDocument(t *testing.T) {
 	if act := doc.MustHtml(); act != `<html><head></head><body><p></p></body></html>` {
 		t.Fatalf("got: %v", act)
 	}
+
+	if act := doc.ReadHTML(); act != "<p></p>" {
+		t.Fatalf("got: %v", act)
+	}
 }
