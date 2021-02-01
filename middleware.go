@@ -70,8 +70,9 @@ func WithRequestLogger(ctx context.Context, logs *zap.Logger) context.Context {
 }
 
 // Requestlogger returns the request scoped logger, returns nil if none is configured
-func RequestLogger(ctx context.Context) *zap.Logger {
-	return ctx.Value(ctxKey("logger")).(*zap.Logger)
+func RequestLogger(ctx context.Context) (l *zap.Logger) {
+	l, _ = ctx.Value(ctxKey("logger")).(*zap.Logger)
+	return
 }
 
 // LoggerMiddleware will create a request scoped logger that uses the request id to make those logs
