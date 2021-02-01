@@ -8,9 +8,11 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
+	"go.uber.org/zap"
 )
 
 type App struct {
+	logs *zap.Logger
 	fdec *form.Decoder
 	view *jet.Set
 	val  *validator.Validate
@@ -22,6 +24,7 @@ type App struct {
 }
 
 func New(
+	logs *zap.Logger,
 	fdec *form.Decoder,
 	view *jet.Set,
 	val *validator.Validate,
@@ -29,6 +32,7 @@ func New(
 	mux *mux.Router,
 ) *App {
 	a := &App{
+		logs: logs,
 		fdec: fdec,
 		view: view,
 		val:  val,
@@ -36,9 +40,12 @@ func New(
 		mux:  mux,
 	}
 
-	view.AddGlobalFunc("url", a.urlHelper)
-	view.AddGlobalFunc("field_error", a.fieldErrorHelper)
-	view.AddGlobalFunc("non_field_error", a.nonFieldErrorHelper)
+	if view != nil {
+		view.AddGlobalFunc("url", a.urlHelper)
+		view.AddGlobalFunc("field_error", a.fieldErrorHelper)
+		view.AddGlobalFunc("non_field_error", a.nonFieldErrorHelper)
+	}
+
 	return a
 }
 

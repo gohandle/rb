@@ -10,6 +10,7 @@ import (
 	"github.com/CloudyKit/jet/v6"
 	"github.com/go-playground/form/v4"
 	"github.com/go-playground/validator/v10"
+	"go.uber.org/zap"
 )
 
 type testValError struct{}
@@ -19,7 +20,7 @@ func (e testValError) Field() string { return "foo" }
 
 func TestValidationRendering(t *testing.T) {
 	val, templates := validator.New(), jet.NewInMemLoader()
-	a := New(form.NewDecoder(), jet.NewSet(templates), val, nil, nil)
+	a := New(zap.NewNop(), form.NewDecoder(), jet.NewSet(templates), val, nil, nil)
 
 	t.Run("render nil", func(t *testing.T) {
 		templates.Set("t1.html", `{{ field_error(., "field_foo") }}`)

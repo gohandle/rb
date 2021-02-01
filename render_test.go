@@ -10,12 +10,13 @@ import (
 
 	"github.com/CloudyKit/jet/v6"
 	"github.com/gohandle/rb"
+	"go.uber.org/zap"
 )
 
 func TestRender(t *testing.T) {
 	l := jet.NewInMemLoader()
 	l.Set("foo.html", `{{.}}{{ bar }}`)
-	a := rb.New(nil, jet.NewSet(l), nil, nil, nil)
+	a := rb.New(zap.NewNop(), nil, jet.NewSet(l), nil, nil, nil)
 
 	t.Run("render template", func(t *testing.T) {
 		w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
@@ -83,7 +84,7 @@ func (r errHeaderRender) Render(a *rb.App, wr http.ResponseWriter, req *http.Req
 
 func TestRenderError(t *testing.T) {
 	l := jet.NewInMemLoader()
-	a := rb.New(nil, jet.NewSet(l), nil, nil, nil)
+	a := rb.New(zap.NewNop(), nil, jet.NewSet(l), nil, nil, nil)
 
 	t.Run("body render error", func(t *testing.T) {
 		w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)

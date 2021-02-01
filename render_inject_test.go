@@ -5,11 +5,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/CloudyKit/jet/v6"
+	"go.uber.org/zap"
 )
 
 func TestInjector(t *testing.T) {
-	a := New(nil, jet.NewSet(jet.NewInMemLoader()), nil, nil, nil)
+	a := New(zap.NewNop(), nil, nil, nil, nil, nil)
 	t.Run("ok", func(t *testing.T) {
 		w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
 

@@ -7,14 +7,14 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/CloudyKit/jet/v6"
 	"github.com/go-playground/form/v4"
 	"github.com/go-playground/validator/v10"
 	"github.com/gohandle/rb"
+	"go.uber.org/zap"
 )
 
 func TestBind(t *testing.T) {
-	a := rb.New(form.NewDecoder(), jet.NewSet(jet.NewInMemLoader()), validator.New(), nil, nil)
+	a := rb.New(zap.NewNop(), form.NewDecoder(), nil, validator.New(), nil, nil)
 
 	t.Run("bind form", func(t *testing.T) {
 		b := strings.NewReader((url.Values{"Foo": {"bar"}}).Encode())
