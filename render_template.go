@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/CloudyKit/jet/v6"
+	"go.uber.org/zap/zapcore"
 )
 
 type TemplateRenderOption func(*templateRender)
@@ -13,6 +14,12 @@ type templateRender struct {
 	name string
 	val  interface{}
 	vars jet.VarMap
+}
+
+func (r templateRender) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+	enc.AddString("kind", "template")
+	enc.AddString("template", r.name)
+	return nil
 }
 
 func (r templateRender) Value() interface{} { return r.val }

@@ -2,6 +2,8 @@ package rb
 
 import (
 	"net/http"
+
+	"go.uber.org/zap/zapcore"
 )
 
 type redirectRender struct{ loc string }
@@ -19,5 +21,11 @@ func (r redirectRender) RenderHeader(a *App, w http.ResponseWriter, req *http.Re
 
 func (r redirectRender) Value() interface{} { return nil }
 func (r redirectRender) Render(a *App, wr http.ResponseWriter, req *http.Request) error {
+	return nil
+}
+
+func (r redirectRender) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+	enc.AddString("kind", "redirect")
+	enc.AddString("location", r.loc)
 	return nil
 }

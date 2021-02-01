@@ -1,6 +1,7 @@
 package rb_test
 
 import (
+	"bytes"
 	"errors"
 	"net/http/httptest"
 	"net/url"
@@ -11,6 +12,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gohandle/rb"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 func TestBind(t *testing.T) {
@@ -26,7 +28,7 @@ func TestBind(t *testing.T) {
 				Foo string
 				Bar string
 			}
-			if err := a.Bind(r, rb.FormBind(&v)); err != nil {
+			if err := a.Bind(r, rb.Form(&v)); err != nil {
 				t.Fatalf("got: %v", err)
 			}
 
@@ -40,7 +42,7 @@ func TestBind(t *testing.T) {
 				Foo string
 				Bar string
 			}
-			if err := a.Bind(r, rb.FormBind(&v, rb.FromSource(rb.PostForm))); err != nil {
+			if err := a.Bind(r, rb.Form(&v, rb.FromSource(rb.PostFormSource))); err != nil {
 				t.Fatalf("got: %v", err)
 			}
 
@@ -54,7 +56,7 @@ func TestBind(t *testing.T) {
 				Foo string
 				Bar string
 			}
-			if err := a.Bind(r, rb.FormBind(&v, rb.FromSource(rb.Query))); err != nil {
+			if err := a.Bind(r, rb.Form(&v, rb.FromSource(rb.QuerySource))); err != nil {
 				t.Fatalf("got: %v", err)
 			}
 
@@ -91,6 +93,32 @@ func TestBind(t *testing.T) {
 
 		if len(verr) != 1 || verr[0].Field() != "Foo" {
 			t.Fatalf("got: %v", verr)
+		}
+	})
+}
+
+func TestBindLogging(t *testing.T) {
+	t.Run("bind form", func(t *testing.T) {
+		lbuf := bytes.NewBuffer(nil)
+		ws := zapcore.AddSync(lbuf)
+		zc := zapcore.NewCore(zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig()), ws, zap.DebugLevel)
+		a := rb.New(zap.New(zc), form.NewDecoder(), nil, nil, nil, nil)
+
+		var v struct {
+			Foo string
+		}
+
+		b := strings.NewReader((url.Values{"Foo": {"bar"}}).Encode())
+		r := httptest.NewRequest("POST", "/?Bar=rab", b)
+		r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		a.Bind(r, rb.Form(&v))
+
+		if !strings.Contains(lbuf.String(), "bind validate set to false, bind done") {
+			t.Fatalf("got: %v", lbuf.String())
+		}
+
+		if !strings.Contains(lbuf.String(), "binding from form") {
+			t.Fatalf("got: %v", lbuf.String())
 		}
 	})
 }

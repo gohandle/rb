@@ -54,6 +54,7 @@ https://www.veritone.com/blog/how-i-write-go-http-services-after-seven-years/
 - [ ] SHOULD rethink injectors, current implementation was build in a hurry
 - [x] MUST be able to use a.URL() directly into a.Render with Redirect()
 - [x] SHOULD add options to FormBind that selects which part of the request the bind will perform
+- [ ] COULD add logging to helpers, but hard to get request scoped logger
 - [ ] COULD add an option that disables the default middleware application if the user wants control
             over the order
 - [ ] COULD allow default template options that are applied on each render

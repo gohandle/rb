@@ -1,6 +1,7 @@
 package rb_test
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"net/http"
@@ -11,6 +12,8 @@ import (
 	"github.com/CloudyKit/jet/v6"
 	"github.com/gohandle/rb"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+	"go.uber.org/zap/zaptest/observer"
 )
 
 func TestRender(t *testing.T) {
@@ -77,6 +80,7 @@ func (r errHeaderRender) RenderHeader(a *rb.App, w http.ResponseWriter, req *htt
 	return status, errors.New("expected error")
 }
 
+func (r errHeaderRender) String() string     { return "test" }
 func (r errHeaderRender) Value() interface{} { return nil }
 func (r errHeaderRender) Render(a *rb.App, wr http.ResponseWriter, req *http.Request) error {
 	return nil
@@ -153,5 +157,42 @@ func TestRenderError(t *testing.T) {
 
 		w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
 		a.Render(w, r, errHeaderRender{})
+	})
+}
+
+func TestLogging(t *testing.T) {
+	zc, obs := observer.New(zap.DebugLevel)
+
+	templates := jet.NewInMemLoader()
+	a := rb.New(zap.New(zc), nil, jet.NewSet(templates), nil, nil, nil)
+	inj := func(a *rb.App, w http.ResponseWriter, req *http.Request, v interface{}) error { return nil }
+
+	t.Run("render", func(t *testing.T) {
+		w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
+		a.Render(w, r, rb.Inject(rb.JSON("foo"), rb.InjectorFunc(inj)))
+
+		if obs.FilterMessage("start render").Len() != 1 {
+			t.Fatalf("got: %v", obs.All())
+		}
+
+		if obs.FilterMessage("render complete").Len() != 1 {
+			t.Fatalf("got: %v", obs.All())
+		}
+	})
+}
+
+func TestRenderLogging(t *testing.T) {
+	t.Run("render json", func(t *testing.T) {
+		lbuf := bytes.NewBuffer(nil)
+		ws := zapcore.AddSync(lbuf)
+		zc := zapcore.NewCore(zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig()), ws, zap.DebugLevel)
+		a := rb.New(zap.New(zc), nil, nil, nil, nil, nil)
+
+		w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
+		a.Render(w, r, rb.JSON("foo"))
+
+		if !strings.Contains(lbuf.String(), "no explicit status provided, set default") {
+			t.Fatalf("got: %v", lbuf.String())
+		}
 	})
 }

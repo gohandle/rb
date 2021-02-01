@@ -1,6 +1,10 @@
 package rb
 
-import "net/http"
+import (
+	"net/http"
+
+	"go.uber.org/zap/zapcore"
+)
 
 type InjectorFunc func(a *App, w http.ResponseWriter, req *http.Request, v interface{}) error
 
@@ -20,6 +24,15 @@ type renderInject struct {
 	val interface{}
 	rr  Render
 	hr  HeaderRender
+}
+
+func (r renderInject) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+	enc.AddString("kind", "inject")
+	if obje, ok := r.rr.(zapcore.ObjectMarshaler); ok {
+		enc.AddObject("wrap", obje)
+	}
+
+	return nil
 }
 
 func (r renderInject) RenderHeader(a *App, w http.ResponseWriter, req *http.Request, status int) (int, error) {

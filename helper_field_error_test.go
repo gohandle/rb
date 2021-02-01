@@ -76,7 +76,7 @@ func TestValidationRendering(t *testing.T) {
 		w, r := httptest.NewRecorder(), httptest.NewRequest("POST", "/", b)
 		r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-		v.Err = a.Bind(r, FormBind(&v), AndValidate())
+		v.Err = a.Bind(r, Form(&v), AndValidate())
 		if v.Err == nil {
 			t.Fatalf("got: %v", v.Err)
 		}
