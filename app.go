@@ -46,7 +46,29 @@ func New(
 		view.AddGlobalFunc("non_field_error", a.nonFieldErrorHelper)
 	}
 
+	if mux != nil {
+		mux.Use(a.IDMiddleware())
+		mux.Use(a.LoggerMiddleware())
+	}
+
 	return a
+}
+
+// L provides a very compact method for returning a zap logger. If provided, it will first check the
+// request for a request-scoped logger. Or else it will return the logger configured on the app. If that
+// one is also nil zero it returns a no-op Logger
+func (a *App) L(r ...*http.Request) (l *zap.Logger) {
+	if len(r) > 0 {
+		if l = RequestLogger(r[0].Context()); l != nil {
+			return
+		}
+	}
+
+	if l = a.logs; l != nil {
+		return
+	}
+
+	return zap.NewNop()
 }
 
 type RenderBind interface {
