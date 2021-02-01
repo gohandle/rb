@@ -47,7 +47,7 @@ func New(
 	}
 
 	if mux != nil {
-		mux.Use(a.IDMiddleware())
+		mux.Use(a.IDMiddleware(CommonRequestIDHeaders...))
 		mux.Use(a.LoggerMiddleware())
 	}
 
