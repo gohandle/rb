@@ -1,6 +1,10 @@
 package rb
 
-import "fmt"
+import (
+	"fmt"
+
+	"go.uber.org/zap"
+)
 
 type urlOptions struct {
 	pairs []string
@@ -32,7 +36,7 @@ func (a *App) GenerateURL(s string, opts ...URLOption) (string, error) {
 
 	loc, err := r.URL(o.pairs...)
 	if err != nil {
-		return "", fmt.Errorf("failed to generate url from route: %w", err)
+		return "", fmt.Errorf("failed to generate url from route: %w, pairs: %v", err, o.pairs)
 	}
 
 	return loc.String(), nil
@@ -43,7 +47,9 @@ func (a *App) GenerateURL(s string, opts ...URLOption) (string, error) {
 func (a *App) URL(s string, opts ...URLOption) string {
 	s, err := a.GenerateURL(s, opts...)
 	if err != nil {
-		//@TODO log instead
+		a.L().Error("failed to generate url",
+			zap.String("s", s),
+			zap.Error(err))
 		return ""
 	}
 	return s
