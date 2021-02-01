@@ -65,13 +65,13 @@ func (b formBind) Bind(a *App, r *http.Request) error {
 
 	switch b.s {
 	case FormSource:
-		a.L(r).Error("binding from form", zap.Any("request_form", r.Form))
+		a.L(r).Debug("binding from form", zap.Any("request_form", r.Form))
 		return a.fdec.Decode(b.v, r.Form)
 	case QuerySource:
-		a.L(r).Error("binding from query", zap.Any("request_urL_query", r.URL.Query()))
+		a.L(r).Debug("binding from query", zap.Any("request_urL_query", r.URL.Query()))
 		return a.fdec.Decode(b.v, r.URL.Query())
 	case PostFormSource:
-		a.L(r).Error("binding from post form", zap.Any("request_post_form", r.PostForm))
+		a.L(r).Debug("binding from post form", zap.Any("request_post_form", r.PostForm))
 		return a.fdec.Decode(b.v, r.PostForm)
 	default:
 		return fmt.Errorf("unsupported bind source: %T", b.s)
