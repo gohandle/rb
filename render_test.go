@@ -53,6 +53,21 @@ func TestRender(t *testing.T) {
 			t.Fatalf("got: %v", act)
 		}
 	})
+
+	t.Run("render redirect status without explit status", func(t *testing.T) {
+		w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
+		a.Render(w, r, rb.Redirect("/"))
+
+		// NOTE: it is very confusing if the redirec doesn't work. It is usually because not
+		// explicit status code is provided. So we'll default
+		if w.Code != 302 {
+			t.Fatalf("got: %v", w.Code)
+		}
+
+		if act := w.Header().Get("Location"); act != "/" {
+			t.Fatalf("got: %v", act)
+		}
+	})
 }
 
 type errHeaderRender struct{}
@@ -99,7 +114,7 @@ func TestRenderError(t *testing.T) {
 		}
 	})
 
-	t.Run("template render error", func(t *testing.T) {
+	t.Run("template render error halfway", func(t *testing.T) {
 		l.Set("fail.html", `foobar {{.bogus}}foo`)
 		w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
 		a.Render(w, r, rb.Template("fail.html", "fail"), rb.Status(202))

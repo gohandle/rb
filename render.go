@@ -47,10 +47,6 @@ func (a *App) Render(w http.ResponseWriter, r *http.Request, rr Render, opts ...
 		opt(&o)
 	}
 
-	if o.code < 1 {
-		o.code = http.StatusOK
-	}
-
 	if hr, ok := rr.(HeaderRender); ok {
 		var err error
 		o.code, err = hr.RenderHeader(a, w, r, o.code)
@@ -60,8 +56,11 @@ func (a *App) Render(w http.ResponseWriter, r *http.Request, rr Render, opts ...
 		}
 	}
 
-	w.WriteHeader(o.code)
+	if o.code < 1 {
+		o.code = http.StatusOK
+	}
 
+	w.WriteHeader(o.code)
 	err := rr.Render(a, w, r)
 	if err != nil {
 		a.handleErrorOrPanic(w, r, err)

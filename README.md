@@ -48,7 +48,7 @@ https://www.veritone.com/blog/how-i-write-go-http-services-after-seven-years/
 - Validator translator: https://github.com/go-playground/validator/blob/master/_examples/translations/main.go
 
 ## TODO
-- [ ] MUST FIX: rb.Redirect shoul also set the status code to some redirect status if the user doesn't 
+- [x] MUST: rb.Redirect shoul also set the status code to some redirect status if the user doesn't 
             set it since then the redirect won't work at all
 - [x] MUST: default error handler fails (probably because rendering is halfway)
 - [ ] SHOULD rethink injectors, current implementation was build in a hurry
