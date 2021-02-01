@@ -19,6 +19,10 @@ type templateRender struct {
 func (r templateRender) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	enc.AddString("kind", "template")
 	enc.AddString("template", r.name)
+	for k, v := range r.vars {
+		enc.AddString("var_"+k, v.Kind().String())
+	}
+
 	return nil
 }
 

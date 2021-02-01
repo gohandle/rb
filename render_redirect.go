@@ -3,6 +3,7 @@ package rb
 import (
 	"net/http"
 
+	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
@@ -13,9 +14,12 @@ func Redirect(loc string) Render { return redirectRender{loc} }
 func (r redirectRender) RenderHeader(a *App, w http.ResponseWriter, req *http.Request, status int) (int, error) {
 	if status < 1 { // no explicit status code set
 		status = http.StatusFound
+		a.L(req).Debug("no explit status for redirect render, use default",
+			zap.Int("status_code", status))
 	}
 
 	w.Header().Set("Location", r.loc)
+	a.L(req).Debug("redirect wrote location header", zap.String("location", r.loc))
 	return status, nil
 }
 

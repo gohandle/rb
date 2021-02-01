@@ -53,7 +53,8 @@ func (a *App) IDMiddleware(hdrs ...string) func(http.Handler) http.Handler {
 			if rid == "" {
 				var b [18]byte
 				if _, err := RandRead(b[:]); err != nil {
-					a.logs.Error("failed to read random bytes for request id", zap.Error(err))
+					a.logs.Error("failed to read random bytes for request id middleware",
+						zap.Error(err))
 				}
 				rid = base64.URLEncoding.EncodeToString(b[:])
 			}

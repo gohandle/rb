@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/sessions"
+	"go.uber.org/zap"
 )
 
 type SessionReader interface {
@@ -21,11 +22,12 @@ type session struct {
 	s *sessions.Session
 	r *http.Request
 	w http.ResponseWriter
+	a *App
 }
 
 func (s session) save() {
 	if err := s.s.Save(s.r, s.w); err != nil {
-		// @TODO log any session save error
+		s.a.L(s.r).Error("failed to save session", zap.Error(err))
 	}
 }
 
@@ -79,8 +81,10 @@ func (a *App) Session(w http.ResponseWriter, r *http.Request, opts ...SessionOpt
 		o.sessionName = DefaultSessionName
 	}
 
-	s, _ := a.sess.Get(r, o.sessionName)
-	// @TODO log session getting errors
+	s, err := a.sess.Get(r, o.sessionName)
+	if err != nil {
+		a.L(r).Error("failed to read session, continue with new one", zap.Error(err))
+	}
 
-	return session{s, r, w}
+	return session{s, r, w, a}
 }
