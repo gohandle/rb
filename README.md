@@ -1,23 +1,11 @@
 # rb
-A web framework designed for modern server-side rendered applications
+Package rb provides a framework for creating server-side rendered web applications
 
-Focus: this framework will probably do too much for you if you're just designing APIs. This 
-repos focusses on application that render HTML on the server.
+Unlike other frameworks it doesn't prevent you from using regular http.Handler methods
+for handling. Such as those created using http.HandlerFunc
 
-OnShoulder: this framework brings together well-known and active packages from the cummunity 
-and doesn't try to re-invent the wheel.
-
-Batteries: but through dependency injection, all these batteries can be swapped. As interfaces 
-are provided
-
-Testing: comes with html testing utilities that makes asserting redered content easy and fun
-
-Just an advanced implementation of the "Respond" pattern: https://youtu.be/rWBSMsLG8po?t=1555
-And advanced implementation of "decode" pattern: https://youtu.be/rWBSMsLG8po?t=1591
-
-Thesis: what if every handler get's created by fx, with its dependencies?
-
-https://www.veritone.com/blog/how-i-write-go-http-services-after-seven-years/
+## Inspiration
+- https://www.veritone.com/blog/how-i-write-go-http-services-after-seven-years/
 
 ## Feature TODO
 - [x] helper for url
