@@ -13,6 +13,7 @@ type HeaderRender interface {
 	RenderHeader(a *App, w http.ResponseWriter, r *http.Request, status int) (int, error)
 }
 
+// Render can be implemented to customize how data should be written to a response.
 type Render interface {
 	Render(a *App, w http.ResponseWriter, r *http.Request) error
 	Value() interface{}
@@ -27,8 +28,11 @@ func (r renderOpts) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	return nil
 }
 
+// RenderOption configures a render
 type RenderOption func(*renderOpts)
 
+// Status configures any render such that the response header is written with the provided
+// status code.
 func Status(code int) RenderOption {
 	return func(opts *renderOpts) {
 		opts.code = code
@@ -49,6 +53,13 @@ func (a *App) handleErrorOrPanic(w http.ResponseWriter, r *http.Request, err err
 	}
 }
 
+// Render can be called to write a representation of a value as the HTTP response. The application
+// is responsible for creating a Render, for example usin JSON() for rendin json or Template()
+// render a template.
+//
+// This method returns no error. Any error that occured during rendin will should be handled.
+// It is possible to configure the ErrorHandler field on the app to configure application wide
+// logic for handling errors durin rending.
 func (a *App) Render(w http.ResponseWriter, r *http.Request, rr Render, opts ...RenderOption) {
 	var o renderOpts
 	for _, opt := range opts {

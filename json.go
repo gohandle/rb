@@ -26,6 +26,8 @@ func (rb jsonRenderBind) Bind(a *App, req *http.Request) error {
 	return json.NewDecoder(req.Body).Decode(rb.v)
 }
 
+// JSON creates a value that can be used for Rendering or Binding. When used it Bind it will decode
+// json, and when used as Render it will encode json.
 func JSON(data interface{}) RenderBind {
 	return jsonRenderBind{data}
 }

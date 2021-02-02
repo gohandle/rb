@@ -9,6 +9,8 @@ import (
 
 type redirectRender struct{ loc string }
 
+// Redirect creates a render that will write a redirect response. It will redirect to the
+// provided url.
 func Redirect(loc string) Render { return redirectRender{loc} }
 
 func (r redirectRender) RenderHeader(a *App, w http.ResponseWriter, req *http.Request, status int) (int, error) {

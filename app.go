@@ -11,6 +11,8 @@ import (
 	"go.uber.org/zap"
 )
 
+// A App encapsulates a set of well-known libraries from the Go ecosystem to allow for rapid
+// development of server-side rendered web applications
 type App struct {
 	logs *zap.Logger
 	fdec *form.Decoder
@@ -23,6 +25,8 @@ type App struct {
 	ErrHandler func(a *App, w http.ResponseWriter, r *http.Request, err error) error
 }
 
+// New inits an rb App. All the required dependencies should be initializes and passed
+// to this constructing method.
 func New(
 	logs *zap.Logger,
 	fdec *form.Decoder,
@@ -71,6 +75,7 @@ func (a *App) L(r ...*http.Request) (l *zap.Logger) {
 	return zap.NewNop()
 }
 
+// RenderBind can be implemented for content types that can be Bound and rendered (like JSON)
 type RenderBind interface {
 	Render
 	Bind

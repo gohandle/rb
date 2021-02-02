@@ -73,7 +73,7 @@ https://www.veritone.com/blog/how-i-write-go-http-services-after-seven-years/
             track of what has been rendered. But can be helpfull for debugging
 - [ ] COULD add session options to configure how the session is saved (expires, etc)
 - [ ] COULD add an option to make all generated urls on top of a basepath
-- [ ] COULD have SOME documentation
+- [x] COULD have SOME documentation
 - [ ] COULD add integration point and allow users to provide their own checks for the field_error helper
             so they can bring their own validator and still filter errors for a certain field
 - [ ] COULD add a rendering option that buffers the response so rendering errors can be shows a 

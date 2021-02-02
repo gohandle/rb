@@ -8,16 +8,24 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+// Bind interface can be implemented to support other data types for binding. This package implements
+// form and JSON encoded request bodies.
 type Bind interface {
 	Bind(a *App, r *http.Request) error
 	Value() (v interface{})
 }
 
+// ValueSource configures the source for a form decoding bind
 type ValueSource int
 
 const (
+	// FormSource will decode from both the url query as the post body
 	FormSource ValueSource = iota
+
+	// Query source will only bind the request's url query
 	QuerySource
+
+	// PostFormSource will only bind the request's form data in the body
 	PostFormSource
 )
 
@@ -26,12 +34,17 @@ type formBind struct {
 	s ValueSource
 }
 
+// FormBindOption configures the Form bind
 type FormBindOption func(*formBind)
 
+// FormSource configures from what part of the request the bind will decode form encoded values
 func FromSource(s ValueSource) FormBindOption {
 	return func(o *formBind) { o.s = s }
 }
 
+// Form will create a Bind that can be passed to the Bind method. This bind will decode request
+// bodys that are application/www-x-form-url encoded and have that mime type as the Content-Type
+// header.
 func Form(v interface{}, opts ...FormBindOption) Bind {
 	b := formBind{v, FormSource}
 	for _, opt := range opts {
@@ -87,14 +100,20 @@ func (r bindOptions) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	return nil
 }
 
+// BindOption configures any bind
 type BindOption func(*bindOptions)
 
+// AndValidate is a bind option that will cause the binding to also validate the bound value
+// using the validator that is configured for this instance of *App.
 func AndValidate() BindOption {
 	return func(o *bindOptions) {
 		o.validate = true
 	}
 }
 
+// Bind will attemp to decode the body of request 'r' using bind 'b'. It takes an optional list
+// of options to configure the binding process. It also supports validation of the bound value
+// using the AndValidate() option.
 func (a *App) Bind(r *http.Request, b Bind, opts ...BindOption) error {
 	var o bindOptions
 	for _, opt := range opts {

@@ -6,6 +6,8 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+// InjectorFun implement Injector to allow casting a function directly into implementing that
+// interface
 type InjectorFunc func(a *App, w http.ResponseWriter, req *http.Request, v interface{}) error
 
 func (f InjectorFunc) OnRender(a *App, w http.ResponseWriter, req *http.Request, v interface{}) error {
@@ -53,6 +55,8 @@ func (r renderInject) Render(a *App, wr http.ResponseWriter, req *http.Request) 
 
 func (r renderInject) Value() interface{} { return r.val }
 
+// Inject creates a Render such that whenever the render is executed it calles the injector
+// first. This allows for reusable "middleware" that triggers functionality for rendered values.
 func Inject(rr Render, inj Injector) Render {
 	r := renderInject{rr: rr, val: rr.Value(), inj: inj}
 	if hr, ok := rr.(HeaderRender); ok {

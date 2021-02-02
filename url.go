@@ -11,14 +11,17 @@ type urlOptions struct {
 	port  int
 }
 
+// URLOption configures how urls are generated
 type URLOption func(*urlOptions)
 
+// URLVar configures a url variable if a route needs that to be generated
 func URLVar(k, v string) URLOption {
 	return func(o *urlOptions) {
 		o.pairs = append(o.pairs, []string{k, v}...)
 	}
 }
 
+// GenerateURL will generate a url by the name of a route. If this fails an error is returned.
 func (a *App) GenerateURL(s string, opts ...URLOption) (string, error) {
 	var o urlOptions
 	for _, opt := range opts {
