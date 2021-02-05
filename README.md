@@ -14,7 +14,7 @@ for handling. Such as those created using http.HandlerFunc
 - [x] allow easy flash messages from session: ReadAndDelete
 - [x] field based errors (settle on validation first)
 - [x] helper for non_field errors
-- [ ] structural logging for each part (with request scoped logging)
+- [x] structural logging for each part (with request scoped logging)
 - [ ] helper for i18n, especially for translating validation messages
 - [ ] integrated CSRF 
 

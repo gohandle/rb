@@ -23,6 +23,9 @@ type App struct {
 
 	// ErrHandler can be configured to get called when an error occured during rendering
 	ErrHandler func(a *App, w http.ResponseWriter, r *http.Request, err error) error
+
+	// BasePath can be set if all generated URLs need to be prefixed with a certain path
+	BasePath string
 }
 
 // New inits an rb App. All the required dependencies should be initializes and passed

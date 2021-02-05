@@ -2,6 +2,7 @@ package rb
 
 import (
 	"fmt"
+	"path"
 
 	"go.uber.org/zap"
 )
@@ -29,7 +30,7 @@ func (a *App) GenerateURL(s string, opts ...URLOption) (string, error) {
 	}
 
 	if s[0] == '/' {
-		return s, nil
+		return a.basedURL(s), nil
 	}
 
 	r := a.mux.Get(s)
@@ -42,7 +43,16 @@ func (a *App) GenerateURL(s string, opts ...URLOption) (string, error) {
 		return "", fmt.Errorf("failed to generate url from route: %w, pairs: %v", err, o.pairs)
 	}
 
+	loc.Path = a.basedURL(loc.Path)
 	return loc.String(), nil
+}
+
+func (a *App) basedURL(s string) string {
+	if a.BasePath != "" {
+		s = path.Join(a.BasePath, s)
+	}
+
+	return s
 }
 
 // URL generates a URL, it calls GenerateURL but only logs any errors that occure and returns an
