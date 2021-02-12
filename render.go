@@ -20,6 +20,7 @@ type Render interface {
 }
 
 type renderOpts struct {
+	err  error
 	code int
 }
 
@@ -30,6 +31,18 @@ func (r renderOpts) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 
 // RenderOption configures a render
 type RenderOption func(*renderOpts)
+
+// WithError allows rendering with a potential error. Error is passes as a pointer to
+// allow the Render called to be called as a defer while still taking into account errors
+func WithError(errpt *error) RenderOption {
+	return func(opts *renderOpts) {
+		if errpt == nil {
+			return
+		}
+
+		opts.err = *errpt
+	}
+}
 
 // Status configures any render such that the response header is written with the provided
 // status code.
@@ -64,6 +77,12 @@ func (a *App) Render(w http.ResponseWriter, r *http.Request, rr Render, opts ...
 	var o renderOpts
 	for _, opt := range opts {
 		opt(&o)
+	}
+
+	if o.err != nil {
+		a.L(r).Debug("explicit render error", zap.Any("options", o), zap.Error(o.err))
+		a.handleErrorOrPanic(w, r, o.err)
+		return
 	}
 
 	a.L(r).Debug("start render", zap.Any("render", rr), zap.Any("options", o))
