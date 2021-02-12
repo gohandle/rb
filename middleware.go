@@ -70,7 +70,7 @@ func WithRequestLogger(ctx context.Context, logs *zap.Logger) context.Context {
 	return context.WithValue(ctx, ctxKey("logger"), logs)
 }
 
-// Requestlogger returns the request scoped logger, returns nil if none is configured
+// RequestLogger returns the request scoped logger, returns nil if none is configured
 func RequestLogger(ctx context.Context) (l *zap.Logger) {
 	l, _ = ctx.Value(ctxKey("logger")).(*zap.Logger)
 	return

@@ -6,10 +6,11 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-// InjectorFun implement Injector to allow casting a function directly into implementing that
+// InjectorFunc implement Injector to allow casting a function directly into implementing that
 // interface
 type InjectorFunc func(a *App, w http.ResponseWriter, req *http.Request, v interface{}) error
 
+// OnRender allows the injector func to be used as an injector
 func (f InjectorFunc) OnRender(a *App, w http.ResponseWriter, req *http.Request, v interface{}) error {
 	return f(a, w, req, v)
 }

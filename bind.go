@@ -22,7 +22,7 @@ const (
 	// FormSource will decode from both the url query as the post body
 	FormSource ValueSource = iota
 
-	// Query source will only bind the request's url query
+	// QuerySource source will only bind the request's url query
 	QuerySource
 
 	// PostFormSource will only bind the request's form data in the body
@@ -37,7 +37,7 @@ type formBind struct {
 // FormBindOption configures the Form bind
 type FormBindOption func(*formBind)
 
-// FormSource configures from what part of the request the bind will decode form encoded values
+// FromSource configures from what part of the request the bind will decode form encoded values
 func FromSource(s ValueSource) FormBindOption {
 	return func(o *formBind) { o.s = s }
 }
@@ -54,9 +54,9 @@ func Form(v interface{}, opts ...FormBindOption) Bind {
 	return b
 }
 
-func (r formBind) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+func (b formBind) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	enc.AddString("kind", "form")
-	switch r.s {
+	switch b.s {
 	case FormSource:
 		enc.AddString("source", "form")
 	case QuerySource:

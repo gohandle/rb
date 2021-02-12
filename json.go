@@ -11,7 +11,7 @@ type jsonRenderBind struct {
 	v interface{}
 }
 
-func (r jsonRenderBind) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+func (jsonRenderBind) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	enc.AddString("kind", "json")
 	return nil
 }
