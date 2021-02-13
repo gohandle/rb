@@ -31,7 +31,7 @@ func (a *testApp1) handleFoo() http.HandlerFunc {
 	}
 }
 
-func TestAppExample(t *testing.T) {
+func TestAppWithExplictErrorOptionForRender(t *testing.T) {
 	zc, obs := observer.New(zap.DebugLevel)
 	v := jet.NewInMemLoader()
 	v.Set("foo.html", `hello, {{.Name}}`)

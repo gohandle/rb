@@ -74,6 +74,14 @@ func (a *App) handleErrorOrPanic(w http.ResponseWriter, r *http.Request, err err
 // It is possible to configure the ErrorHandler field on the app to configure application wide
 // logic for handling errors durin rending.
 func (a *App) Render(w http.ResponseWriter, r *http.Request, rr Render, opts ...RenderOption) {
+	if err := a.Respond(w, r, rr, opts...); err != nil {
+		a.handleErrorOrPanic(w, r, err)
+	}
+}
+
+// Respond will render to w using 'rr' but may return an error that needs to be handled by the user.
+// This method works better when a handler is created using the application's action method
+func (a *App) Respond(w http.ResponseWriter, r *http.Request, rr Render, opts ...RenderOption) error {
 	var o renderOpts
 	for _, opt := range opts {
 		opt(&o)
@@ -81,8 +89,7 @@ func (a *App) Render(w http.ResponseWriter, r *http.Request, rr Render, opts ...
 
 	if o.err != nil {
 		a.L(r).Debug("explicit render error", zap.Any("options", o), zap.Error(o.err))
-		a.handleErrorOrPanic(w, r, o.err)
-		return
+		return o.err
 	}
 
 	a.L(r).Debug("start render", zap.Any("render", rr), zap.Any("options", o))
@@ -93,8 +100,7 @@ func (a *App) Render(w http.ResponseWriter, r *http.Request, rr Render, opts ...
 		o.code, err = hr.RenderHeader(a, w, r, o.code)
 		if err != nil {
 			a.L(r).Debug("error while rendering header", zap.Error(err))
-			a.handleErrorOrPanic(w, r, err)
-			return
+			return err
 		}
 	}
 
@@ -106,12 +112,11 @@ func (a *App) Render(w http.ResponseWriter, r *http.Request, rr Render, opts ...
 	w.WriteHeader(o.code)
 	a.L(r).Debug("wrote header", zap.Int("status_code", o.code))
 
-	err := rr.Render(a, w, r)
-	if err != nil {
+	if err := rr.Render(a, w, r); err != nil {
 		a.L(r).Debug("error while rendering body", zap.Error(err))
-		a.handleErrorOrPanic(w, r, err)
-		return
+		return err
 	}
 
 	a.L(r).Debug("render complete")
+	return nil
 }
