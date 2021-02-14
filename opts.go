@@ -56,6 +56,9 @@ func ErrorHandler(eh func(a *App, w http.ResponseWriter, r *http.Request, err er
 func ProtectFromCSRF(k []byte, co ...csrf.Option) AppOption {
 	return func(opts *AppOptions) {
 		opts.csrfKey = k
-		opts.csrfOptions = append([]csrf.Option{csrf.CookieName("_rb_csrf")}, co...)
+		opts.csrfOptions = append([]csrf.Option{
+			csrf.CookieName("_rb_csrf"),
+			csrf.FieldName("rb.csrf.token"),
+		}, co...)
 	}
 }

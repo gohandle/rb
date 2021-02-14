@@ -20,6 +20,8 @@ func (s *testSession) Get(k interface{}) (v interface{}) {
 	return
 }
 
+// ReadSession provides a covenient method for reading session data from a cookie in tests. It
+// requires a cookiestore that is configured the same way as the store that writes the cookie.
 func ReadSession(tb testing.TB, s *sessions.CookieStore, name, rawCookie string) rb.SessionReader {
 	c, err := parseCookie(rawCookie, name)
 	if err != nil {
