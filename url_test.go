@@ -27,7 +27,8 @@ func TestURLGeneration(t *testing.T) {
 		t.Fatalf("got: %v", act)
 	}
 
-	a.BasePath = "/prod/"
+	a = rb.New(zap.NewNop(), nil, nil, nil, nil, r, rb.BasePath("/prod/"))
+
 	if act := a.URL("with_host"); act != "ftp://localhost:9090/prod/bar" {
 		t.Fatalf("got: %v", act)
 	}

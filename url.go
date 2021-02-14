@@ -48,8 +48,8 @@ func (a *App) GenerateURL(s string, opts ...URLOption) (string, error) {
 }
 
 func (a *App) basedURL(s string) string {
-	if a.BasePath != "" {
-		s = path.Join(a.BasePath, s)
+	if a.opts.basePath != "" {
+		s = path.Join(a.opts.basePath, s)
 	}
 
 	return s

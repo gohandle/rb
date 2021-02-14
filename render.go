@@ -54,13 +54,13 @@ func Status(code int) RenderOption {
 
 func (a *App) handleErrorOrPanic(w http.ResponseWriter, r *http.Request, err error) {
 	a.L(r).Error("error while handling request", zap.Error(err))
-	if a.ErrHandler == nil {
+	if a.opts.errorHandler == nil {
 		a.L(r).Info("no error handler configured, render default error page")
 		http.Error(w, "rb: no error handler but an error occured: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	herr := a.ErrHandler(a, w, r, err)
+	herr := a.opts.errorHandler(a, w, r, err)
 	if herr != nil {
 		panic("rb: failed to handle error, original error: '" + err.Error() + "', error handler error: " + herr.Error())
 	}

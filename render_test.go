@@ -151,9 +151,10 @@ func TestRenderError(t *testing.T) {
 			}
 		}()
 
-		a.ErrHandler = func(a *rb.App, w http.ResponseWriter, r *http.Request, err error) error {
-			return errors.New("expected")
-		}
+		a := rb.New(zap.NewNop(), nil, jet.NewSet(l), nil, nil, nil, rb.ErrorHandler(
+			func(a *rb.App, w http.ResponseWriter, r *http.Request, err error) error {
+				return errors.New("expected")
+			}))
 
 		w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
 		a.Render(w, r, errHeaderRender{})

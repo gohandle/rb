@@ -8,6 +8,7 @@ import (
 
 	"github.com/CloudyKit/jet/v6"
 	"github.com/gohandle/rb"
+	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest/observer"
 )
@@ -52,4 +53,29 @@ func TestAppWithExplictErrorOptionForRender(t *testing.T) {
 			t.Fatalf("got: %v", obs)
 		}
 	})
+}
+
+func TestNoDefaultMiddlewareOption(t *testing.T) {
+	m := mux.NewRouter()
+	rb.New(zap.NewNop(), nil, nil, nil, nil, m, rb.NoDefaultMiddleware())
+
+	var rid string
+	m.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		rid = rb.RequestID(r.Context())
+	})
+
+	w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
+	m.ServeHTTP(w, r)
+
+	if rid != "" {
+		t.Fatalf("got: %v", rid)
+	}
+}
+
+func TestNoDefaultHelperOption(t *testing.T) {
+	v := jet.NewSet(jet.NewInMemLoader())
+	rb.New(zap.NewNop(), nil, v, nil, nil, nil, rb.NoDefaultHelpers())
+	if _, ok := v.LookupGlobal("url"); ok {
+		t.Fatalf("got: %v", ok)
+	}
 }

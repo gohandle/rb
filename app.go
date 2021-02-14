@@ -20,16 +20,13 @@ type App struct {
 	val  *validator.Validate
 	sess sessions.Store
 	mux  *mux.Router
-
-	// ErrHandler can be configured to get called when an error occured during rendering
-	ErrHandler func(a *App, w http.ResponseWriter, r *http.Request, err error) error
-
-	// BasePath can be set if all generated URLs need to be prefixed with a certain path
-	BasePath string
+	opts AppOptions
 }
 
 // New inits an rb App. All the required dependencies should be initializes and passed
-// to this constructing method.
+// to this constructing method. By default it will add default helpers to the template
+// engine and default middleware to the router. This can behaviour can be customized
+// with any of the available options
 func New(
 	logs *zap.Logger,
 	fdec *form.Decoder,
@@ -37,6 +34,7 @@ func New(
 	val *validator.Validate,
 	sess sessions.Store,
 	mux *mux.Router,
+	opts ...AppOption,
 ) *App {
 	a := &App{
 		logs: logs,
@@ -47,13 +45,17 @@ func New(
 		mux:  mux,
 	}
 
-	if view != nil {
+	for _, o := range opts {
+		o(&a.opts)
+	}
+
+	if view != nil && !a.opts.noDefaultHelpers {
 		view.AddGlobalFunc("url", a.urlHelper)
 		view.AddGlobalFunc("field_error", a.fieldErrorHelper)
 		view.AddGlobalFunc("non_field_error", a.nonFieldErrorHelper)
 	}
 
-	if mux != nil {
+	if mux != nil && !a.opts.noDefaultMiddleware {
 		mux.Use(a.IDMiddleware(CommonRequestIDHeaders...))
 		mux.Use(a.LoggerMiddleware())
 	}
