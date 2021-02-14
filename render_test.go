@@ -6,11 +6,15 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 
 	"github.com/CloudyKit/jet/v6"
+	"github.com/go-playground/form/v4"
 	"github.com/gohandle/rb"
+	"github.com/gorilla/csrf"
+	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"go.uber.org/zap/zaptest/observer"
@@ -194,6 +198,75 @@ func TestRenderLogging(t *testing.T) {
 
 		if !strings.Contains(lbuf.String(), "no explicit status provided, set default") {
 			t.Fatalf("got: %v", lbuf.String())
+		}
+	})
+}
+
+func TestRenderCSRFInTemplate(t *testing.T) {
+	var k [32]byte
+	l := jet.NewInMemLoader()
+	l.Set("foo.html", `{{ csrf_token }}`)
+	m := mux.NewRouter()
+	a := rb.New(zap.NewNop(), form.NewDecoder(), jet.NewSet(l), nil, nil, m,
+		rb.ProtectFromCSRF(k[:], csrf.CookieName("_my_csrf"), csrf.FieldName("my_csrf_token")))
+
+	type testSubmit struct {
+		Foo string `form:"foo"`
+	}
+
+	var s testSubmit
+	m.Handle("/foo", a.Action(func(w http.ResponseWriter, r *http.Request) error {
+		if err := a.Bind(r, rb.Form(&s)); err != nil {
+			t.Fatalf("got: %v", err)
+		}
+
+		return a.Respond(w, r, rb.Template("foo.html", nil))
+	}))
+
+	w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/foo", nil)
+	m.ServeHTTP(w, r)
+
+	cookie, token := w.Header().Get("Set-Cookie"), w.Body.String()
+	if !strings.HasPrefix(cookie, "_my_csrf") {
+		t.Fatalf("got: %v", cookie)
+	}
+
+	if act := len(token); act != 88 {
+		t.Fatalf("got: %v", act)
+	}
+
+	t.Run("submit with valid token and cookie", func(t *testing.T) {
+		b := strings.NewReader(url.Values{
+			"my_csrf_token": {strings.TrimSpace(w.Body.String())},
+			"foo":           {"bar"},
+		}.Encode())
+
+		w, r := httptest.NewRecorder(), httptest.NewRequest("POST", "/foo", b)
+		r.Header.Set("Cookie", cookie)
+		r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+		m.ServeHTTP(w, r)
+		if w.Code != 200 {
+			t.Fatalf("got: %v", w.Body.String())
+		}
+
+		// form binding should have worked as normal
+		if s.Foo != "bar" {
+			t.Fatalf("got: %v", s.Foo)
+		}
+	})
+
+	t.Run("without cookie", func(t *testing.T) {
+		b := strings.NewReader(url.Values{
+			"my_csrf_token": {strings.TrimSpace(w.Body.String())},
+		}.Encode())
+
+		w, r := httptest.NewRecorder(), httptest.NewRequest("POST", "/foo", b)
+		r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+		m.ServeHTTP(w, r)
+		if w.Code != http.StatusForbidden {
+			t.Fatalf("got: %v", w.Body.String())
 		}
 	})
 }

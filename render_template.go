@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/CloudyKit/jet/v6"
+	"github.com/gorilla/csrf"
 	"go.uber.org/zap/zapcore"
 )
 
@@ -33,6 +34,13 @@ func (r templateRender) Render(a *App, wr http.ResponseWriter, req *http.Request
 	tmpl, err := a.view.GetTemplate(r.name)
 	if err != nil {
 		return fmt.Errorf("failed to get template: %w", err)
+	}
+
+	// if there is a csrfKey we assume the middleware is set as well and provide
+	// the template with a variable that prints the token. If the middleware is not
+	// set or failed this might be set to an empty string
+	if a.opts.csrfKey != nil {
+		TemplateVar("csrf_token", csrf.Token(req))(&r)
 	}
 
 	return tmpl.Execute(wr, r.vars, r.val)

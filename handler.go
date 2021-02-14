@@ -1,6 +1,8 @@
 package rb
 
-import "net/http"
+import (
+	"net/http"
+)
 
 // Handler is close to the standardlib http.Handler but allows for handling errors
 type Handler interface {

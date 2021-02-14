@@ -6,6 +6,7 @@ import (
 	"github.com/CloudyKit/jet/v6"
 	"github.com/go-playground/form/v4"
 	"github.com/go-playground/validator/v10"
+	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"go.uber.org/zap"
@@ -58,6 +59,9 @@ func New(
 	if mux != nil && !a.opts.noDefaultMiddleware {
 		mux.Use(a.IDMiddleware(CommonRequestIDHeaders...))
 		mux.Use(a.LoggerMiddleware())
+		if a.opts.csrfKey != nil {
+			mux.Use(csrf.Protect(a.opts.csrfKey, a.opts.csrfOptions...))
+		}
 	}
 
 	return a

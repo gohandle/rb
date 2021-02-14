@@ -1,6 +1,10 @@
 package rb
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/gorilla/csrf"
+)
 
 // AppOptions holds configurable settings for an rb.App
 type AppOptions struct {
@@ -8,6 +12,8 @@ type AppOptions struct {
 	noDefaultHelpers    bool
 	basePath            string
 	errorHandler        func(a *App, w http.ResponseWriter, r *http.Request, err error) error
+	csrfKey             []byte
+	csrfOptions         []csrf.Option
 }
 
 // AppOption configures the App
@@ -42,5 +48,14 @@ func BasePath(p string) AppOption {
 func ErrorHandler(eh func(a *App, w http.ResponseWriter, r *http.Request, err error) error) AppOption {
 	return func(opts *AppOptions) {
 		opts.errorHandler = eh
+	}
+}
+
+// ProtectFromCSRF enables csrf protection for POST requests. If NoDefaultMiddleware is set the CSRF
+// middleware will not be added automatically
+func ProtectFromCSRF(k []byte, co ...csrf.Option) AppOption {
+	return func(opts *AppOptions) {
+		opts.csrfKey = k
+		opts.csrfOptions = append([]csrf.Option{csrf.CookieName("_rb_csrf")}, co...)
 	}
 }
