@@ -15,6 +15,10 @@
 - [ ] SHOULD add more translate options for default message etc
 - [ ] SHOULD add build-in support for setting a language in the session
 - [ ] COULD provide flash functionality, build int
+- [ ] SHOULD include default middleware in NewApp
+- [ ] MUST re-add csrf using existing session tools
+- [ ] MUST add helpers for: url(), t(), field_error(). Depending on the respecitve Core 
+      is available in the app.
 
 ## Testing Backlog
 - [ ] Test different form sources

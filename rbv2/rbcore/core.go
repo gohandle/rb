@@ -36,7 +36,8 @@ func New(
 		bc,
 		sc,
 		tc,
-		ec}
+		ec,
+	}
 }
 
 // NewDefault creates a core with default dependencies
