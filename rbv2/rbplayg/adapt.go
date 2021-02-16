@@ -1,4 +1,4 @@
-package rbplayground
+package rbplayg
 
 import (
 	"context"

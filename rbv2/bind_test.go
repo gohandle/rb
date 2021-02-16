@@ -9,13 +9,13 @@ import (
 	"github.com/go-playground/form/v4"
 	"github.com/go-playground/validator/v10"
 	rb "github.com/gohandle/rb/rbv2"
-	"github.com/gohandle/rb/rbv2/rbplayground"
+	"github.com/gohandle/rb/rbv2/rbplayg"
 )
 
 func TestDefaultBindCore(t *testing.T) {
 	bc := rb.NewBindCore(
-		rbplayground.AdaptDecoder(form.NewDecoder()),
-		rbplayground.AdaptValidator(validator.New()))
+		rbplayg.AdaptDecoder(form.NewDecoder()),
+		rbplayg.AdaptValidator(validator.New()))
 
 	b := strings.NewReader(url.Values{"foo": {"bar"}}.Encode())
 	w, r := httptest.NewRecorder(), httptest.NewRequest("POST", "/", b)
