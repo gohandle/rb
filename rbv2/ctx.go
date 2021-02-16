@@ -12,7 +12,7 @@ type Ctx interface {
 	Bind(b Bind, o ...BindOption) (bool, error)
 	Session(o ...SessionOption) Session
 	URL(s string, o ...URLOption) string
-	Translate(m string) string
+	Translate(m string, o ...TranslateOption) string
 	Request() *http.Request
 	Params() map[string]string
 	Route() string
@@ -51,8 +51,8 @@ func (c *ctx) URL(s string, o ...URLOption) string {
 	return c.core.URL(c.wr, c.Request(), s, o...)
 }
 
-func (c *ctx) Translate(m string) string {
-	return c.core.Translate(c.wr, c.Request(), m)
+func (c *ctx) Translate(m string, o ...TranslateOption) string {
+	return c.core.Translate(c.wr, c.Request(), m, o...)
 }
 
 func (c *ctx) Params() map[string]string {

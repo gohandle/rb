@@ -15,7 +15,6 @@ type HeaderRender interface {
 // Render can be implemented to customize how data should be written to a response.
 type Render interface {
 	Render(rc RenderCore, w http.ResponseWriter, r *http.Request) error
-	Value() interface{}
 }
 
 // RenderOpts hold all options for a render

@@ -8,8 +8,8 @@ import (
 	"reflect"
 )
 
-// Core provides all functionality in a single interface that can be
-// implemented through any means necessary
+// Core provides all functionality in a single interface that can be implemented to provide
+// all request response dependant functionality.
 type Core interface {
 	TranslateCore
 	RouterCore
@@ -17,31 +17,6 @@ type Core interface {
 	BindCore
 	ErrorCore
 	SessionCore
-}
-
-// NewCore composes a full core from its partial cores
-func NewCore(
-	roc RouterCore,
-	rec RenderCore,
-	bc BindCore,
-	sc SessionCore,
-	tc TranslateCore,
-	ec ErrorCore,
-) Core {
-	return struct {
-		RouterCore
-		RenderCore
-		BindCore
-		SessionCore
-		TranslateCore
-		ErrorCore
-	}{
-		roc,
-		rec,
-		bc,
-		sc,
-		tc,
-		ec}
 }
 
 // RouterCore provides part of the core that depends on a router.

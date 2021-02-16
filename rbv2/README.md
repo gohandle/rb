@@ -15,6 +15,7 @@
 - [ ] SHOULD add erroring NoValueDecoder, NoTemplates, NoValidation implementations for 
       respective cores.
 - [ ] SHOULD add more translate options for default message etc
+- [ ] SHOULD add support for setting a language in the session
 
 ## Testing Backlog
 - [ ] Test different form sources

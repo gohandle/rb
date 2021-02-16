@@ -40,8 +40,6 @@ func Template(name string, data interface{}, opts ...TemplateRenderOption) Rende
 	return r
 }
 
-func (r templateRender) Value() interface{} { return r.val }
-
 func (r templateRender) Render(rc RenderCore, wr http.ResponseWriter, req *http.Request) error {
 	tmpl, err := rc.Lookup(r.name)
 	if err != nil {
