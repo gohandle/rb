@@ -55,10 +55,14 @@ func ErrorHandler(eh func(a *App, w http.ResponseWriter, r *http.Request, err er
 // middleware will not be added automatically
 func ProtectFromCSRF(k []byte, co ...csrf.Option) AppOption {
 	return func(opts *AppOptions) {
-		opts.csrfKey = k
+		opts.csrfKey = make([]byte, len(k))
+		copy(opts.csrfKey, k)
+
+		// opts.csrfOptions = co
 		opts.csrfOptions = append([]csrf.Option{
 			csrf.CookieName("_rb_csrf"),
 			csrf.FieldName("rb.csrf.token"),
 		}, co...)
+
 	}
 }

@@ -10,7 +10,7 @@ import (
 
 func TestGenerateCSRF(t *testing.T) {
 	var k [32]byte
-	c, tok := GenerateCSRF(t, k[:])
+	c, tok := GenerateCSRF(t, k[:], "_gorilla_csrf")
 	if len(tok) != 88 {
 		t.Fatalf("got: %v", tok)
 	}

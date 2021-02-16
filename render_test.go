@@ -13,6 +13,7 @@ import (
 	"github.com/CloudyKit/jet/v6"
 	"github.com/go-playground/form/v4"
 	"github.com/gohandle/rb"
+	"github.com/gohandle/rb/rbtest"
 	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
@@ -208,7 +209,9 @@ func TestRenderCSRFInTemplate(t *testing.T) {
 	l.Set("foo.html", `{{ csrf_token }}`)
 	m := mux.NewRouter()
 	a := rb.New(zap.NewNop(), form.NewDecoder(), jet.NewSet(l), nil, nil, m,
-		rb.ProtectFromCSRF(k[:], csrf.CookieName("_my_csrf"), csrf.FieldName("my_csrf_token")))
+		rb.ProtectFromCSRF(k[:],
+			csrf.CookieName("_my_csrf"),
+			csrf.FieldName("my_csrf_token")))
 
 	type testSubmit struct {
 		Foo string `form:"foo"`
@@ -269,4 +272,24 @@ func TestRenderCSRFInTemplate(t *testing.T) {
 			t.Fatalf("got: %v", w.Body.String())
 		}
 	})
+
+}
+
+func TestGeneratedCSRF(t *testing.T) {
+	var k [32]byte
+	c, tok := rbtest.GenerateCSRF(t, k[:])
+
+	m := mux.NewRouter()
+	rb.New(zap.NewNop(), nil, nil, nil, nil, m, rb.ProtectFromCSRF(k[:]))
+
+	m.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {})
+
+	w, r := httptest.NewRecorder(), httptest.NewRequest("POST", "/", nil)
+	r.Header.Set("X-CSRF-Token", tok)
+	r.Header.Set("Cookie", "_rb_csrf="+c)
+
+	m.ServeHTTP(w, r)
+	if w.Code != 200 {
+		t.Fatalf("got: %v", w.Body.String())
+	}
 }
