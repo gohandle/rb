@@ -10,5 +10,7 @@ require (
 	github.com/gorilla/csrf v1.7.0
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/sessions v1.2.1
+	github.com/nicksnyder/go-i18n/v2 v2.1.2
 	go.uber.org/zap v1.16.0
+	golang.org/x/text v0.3.3
 )

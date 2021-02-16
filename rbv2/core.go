@@ -79,7 +79,7 @@ type ErrorCore interface {
 
 // TranslateCore provides part of the core that is responsible for translation
 type TranslateCore interface {
-	Translate(w http.ResponseWriter, r *http.Request, m string) string
+	Translate(w http.ResponseWriter, r *http.Request, m string, opts ...TranslateOption) string
 }
 
 // StructValidator implements struct validation

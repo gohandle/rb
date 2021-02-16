@@ -14,6 +14,7 @@
 - [ ] Support setting csrf values in the the template
 - [ ] SHOULD add erroring NoValueDecoder, NoTemplates, NoValidation implementations for 
       respective cores.
+- [ ] SHOULD add more translate options for default message etc
 
 ## Testing Backlog
 - [ ] Test different form sources
