@@ -17,6 +17,7 @@ func Adapt(
 	urlHelper jethelper.URL,
 	paramsHelper jethelper.Params,
 	routeHelper jethelper.Route,
+	transHelper jethelper.Trans,
 ) rb.Templates {
 	if urlHelper != nil {
 		jset.AddGlobalFunc(urlHelper.Name(), jet.Func(urlHelper))
@@ -28,6 +29,10 @@ func Adapt(
 
 	if routeHelper != nil {
 		jset.AddGlobalFunc(routeHelper.Name(), jet.Func(routeHelper))
+	}
+
+	if transHelper != nil {
+		jset.AddGlobalFunc(transHelper.Name(), jet.Func(transHelper))
 	}
 
 	return adapted{jset}
