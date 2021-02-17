@@ -47,4 +47,17 @@ func TestJIT(t *testing.T) {
 			t.Fatalf("got: %v", calls)
 		}
 	})
+
+	t.Run("no write at all", func(t *testing.T) {
+		w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
+		var calls string
+		NewMiddleware()(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			AppendCallback(w, func() { calls += "a" })
+			AppendCallback(w, func() { calls += "b" })
+		})).ServeHTTP(w, r)
+
+		if calls != "ab" {
+			t.Fatalf("got: %v", calls)
+		}
+	})
 }

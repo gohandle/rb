@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"net/http"
 
+	"github.com/gohandle/rb/rbv2/rbjit"
 	"go.uber.org/zap"
 )
 
@@ -101,6 +102,27 @@ func NewLoggerMiddleware(logs *zap.Logger) LoggerMiddleware {
 
 			next.ServeHTTP(w, r.WithContext(
 				WithRequestLogger(r.Context(), l)))
+		})
+	}
+}
+
+// SessionSaveMiddleware will automatically save the session just before the
+// response body is written if the response is JIT (see rbjit package)
+type SessionSaveMiddleware func(http.Handler) http.Handler
+
+// NewSessionSaveMiddleware creates the middleware
+func NewSessionSaveMiddleware(sc SessionCore) SessionSaveMiddleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if err := rbjit.AppendCallback(w, func() {
+				if err := sc.SaveSession(w, r, sc.Session(w, r)); err != nil {
+					L(r).Error("failed to save session during jit callback", zap.Error(err))
+				}
+			}); err != nil {
+				L(r).Error("failed to append jit callback for session saving", zap.Error(err))
+			}
+
+			next.ServeHTTP(w, r)
 		})
 	}
 }

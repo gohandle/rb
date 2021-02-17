@@ -1,4 +1,4 @@
-package rb
+package rb_test
 
 import (
 	"fmt"
@@ -7,18 +7,23 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	rb "github.com/gohandle/rb/rbv2"
+	"github.com/gohandle/rb/rbv2/rbgorilla"
+	"github.com/gohandle/rb/rbv2/rbjit"
+	"github.com/gohandle/rb/rbv2/rbtest"
+	"github.com/gorilla/sessions"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest/observer"
 )
 
 func TestRequestIDMiddleware(t *testing.T) {
 	rnd := rand.New(rand.NewSource(1))
-	RandRead = rnd.Read
+	rb.RandRead = rnd.Read
 
 	t.Run("without any headers", func(t *testing.T) {
 		w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
-		NewIDMiddleware()(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			fmt.Fprintf(w, "rid:%s", RequestID(r.Context()))
+		rb.NewIDMiddleware()(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprintf(w, "rid:%s", rb.RequestID(r.Context()))
 		})).ServeHTTP(w, r)
 
 		if w.Body.String() != `rid:Uv38ByGCZU8WP18PmmIdcpVm` {
@@ -30,8 +35,8 @@ func TestRequestIDMiddleware(t *testing.T) {
 		w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
 		r.Header.Set("X-Amzn-Trace-Id", "foo")
 
-		NewIDMiddleware(CommonRequestIDHeaders...)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			fmt.Fprintf(w, "rid:%s", RequestID(r.Context()))
+		rb.NewIDMiddleware(rb.CommonRequestIDHeaders...)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprintf(w, "rid:%s", rb.RequestID(r.Context()))
 		})).ServeHTTP(w, r)
 
 		if w.Body.String() != `rid:foo` {
@@ -42,19 +47,19 @@ func TestRequestIDMiddleware(t *testing.T) {
 
 func TestRequestLogger(t *testing.T) {
 	rnd := rand.New(rand.NewSource(1))
-	RandRead = rnd.Read
+	rb.RandRead = rnd.Read
 
 	lc, obs := observer.New(zap.DebugLevel)
 
 	t.Run("without a request id", func(t *testing.T) {
 		w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
 
-		NewLoggerMiddleware(zap.New(lc))(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if act := RequestLogger(r.Context()); act == nil {
+		rb.NewLoggerMiddleware(zap.New(lc))(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if act := rb.RequestLogger(r.Context()); act == nil {
 				t.Fatalf("got: %v", act)
 			}
 
-			L(r).Info("foo")
+			rb.L(r).Info("foo")
 		})).ServeHTTP(w, r)
 
 		if obs.FilterMessage("foo").Len() != 1 ||
@@ -67,12 +72,12 @@ func TestRequestLogger(t *testing.T) {
 	t.Run("with a request id", func(t *testing.T) {
 		w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
 
-		NewIDMiddleware()(NewLoggerMiddleware(zap.New(lc))(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if act := RequestLogger(r.Context()); act == nil {
+		rb.NewIDMiddleware()(rb.NewLoggerMiddleware(zap.New(lc))(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if act := rb.RequestLogger(r.Context()); act == nil {
 				t.Fatalf("got: %v", act)
 			}
 
-			L(r).Info("bar")
+			rb.L(r).Info("bar")
 		}))).ServeHTTP(w, r)
 
 		if obs.FilterMessage("bar").Len() != 1 ||
@@ -82,7 +87,23 @@ func TestRequestLogger(t *testing.T) {
 	})
 
 	// quick test for getting a nop logger
-	if act := L(); act == nil {
+	if act := rb.L(); act == nil {
 		t.Fatalf("got:%v", act)
+	}
+}
+
+func TestSessionSaveMiddleware(t *testing.T) {
+	sc := rb.NewSessionCore(rbgorilla.AdaptSessionStore(sessions.NewCookieStore(make([]byte, 32))))
+
+	w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
+	rbjit.NewMiddleware()(
+		rb.NewSessionSaveMiddleware(sc)(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				sc.Session(w, r).Set("foo", "bar")
+			}))).ServeHTTP(w, r)
+
+	s := rbtest.ReadSession(t, sc, rb.DefaultCookieName, w.Header().Get("Set-Cookie"))
+	if act := s.Get("foo").(string); act != "bar" {
+		t.Fatalf("got: %v", act)
 	}
 }
