@@ -1,4 +1,4 @@
-package rbjet
+package jethelper
 
 import (
 	"reflect"
@@ -7,17 +7,17 @@ import (
 	rb "github.com/gohandle/rb/rbv2"
 )
 
-// URLHelper is a jet template helper that generates urls
-type URLHelper jet.Func
+// URL is a jet template helper that generates urls
+type URL jet.Func
 
 // Name defines the name under which the helper is available in jet templates
-func (URLHelper) Name() string { return "rb_url" }
+func (URL) Name() string { return "rb_url" }
 
-// NewURLHelper creates the jet template helper for generating urls. It requires that the
+// NewURL creates the jet template helper for generating urls. It requires that the
 // template has variables for the html request, and response.
-func NewURLHelper(rc rb.RouterCore) URLHelper {
+func NewURL(rc rb.RouterCore) URL {
 	return func(args jet.Arguments) (v reflect.Value) {
-		args.RequireNumOfArguments("url", 1, -1)
+		args.RequireNumOfArguments(URL.Name(nil), 1, -1)
 
 		w, r, err := respReq(args)
 		if err != nil {

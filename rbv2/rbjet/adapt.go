@@ -1,23 +1,33 @@
 package rbjet
 
 import (
-	"fmt"
 	"net/http"
 	"reflect"
 
 	"github.com/CloudyKit/jet/v6"
 	rb "github.com/gohandle/rb/rbv2"
+	"github.com/gohandle/rb/rbv2/rbjet/jethelper"
 )
-
-const requestVarName = "rb_request"
-const responseVarName = "rb_response"
 
 type adapted struct{ *jet.Set }
 
 // Adapt adapts a jset tmplate set to implement the template directory
-func Adapt(jset *jet.Set, urlHelper URLHelper) rb.Templates {
+func Adapt(
+	jset *jet.Set,
+	urlHelper jethelper.URL,
+	paramsHelper jethelper.Params,
+	routeHelper jethelper.Route,
+) rb.Templates {
 	if urlHelper != nil {
 		jset.AddGlobalFunc(urlHelper.Name(), jet.Func(urlHelper))
+	}
+
+	if paramsHelper != nil {
+		jset.AddGlobalFunc(paramsHelper.Name(), jet.Func(paramsHelper))
+	}
+
+	if routeHelper != nil {
+		jset.AddGlobalFunc(routeHelper.Name(), jet.Func(routeHelper))
 	}
 
 	return adapted{jset}
@@ -44,33 +54,8 @@ func (e exec) Execute(
 		vars = make(map[string]reflect.Value)
 	}
 
-	vars[requestVarName] = reflect.ValueOf(r)
-	vars[responseVarName] = reflect.ValueOf(w)
+	vars[jethelper.RequestVarName] = reflect.ValueOf(r)
+	vars[jethelper.ResponseVarName] = reflect.ValueOf(w)
 
 	return e.Template.Execute(w, vars, data)
-}
-
-// respReq is a utility method that get the request and response from variables in the execution context
-func respReq(a jet.Arguments) (w http.ResponseWriter, r *http.Request, err error) {
-	reqv := a.Runtime().Resolve(requestVarName)
-	if (reqv == reflect.Value{}) {
-		return nil, nil, fmt.Errorf("failed to resolve '%s' variable", requestVarName)
-	}
-
-	r, ok := reqv.Interface().(*http.Request)
-	if !ok {
-		return nil, nil, fmt.Errorf("failed to turn '%s' variable to *http.Request", requestVarName)
-	}
-
-	respv := a.Runtime().Resolve(responseVarName)
-	if (reqv == reflect.Value{}) {
-		return nil, nil, fmt.Errorf("failed to resolve '%s' variable", responseVarName)
-	}
-
-	w, ok = respv.Interface().(http.ResponseWriter)
-	if !ok {
-		return nil, nil, fmt.Errorf("failed to turn '%s' variable to http.ResponseWriter", responseVarName)
-	}
-
-	return
 }
