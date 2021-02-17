@@ -3,7 +3,6 @@ package rb
 import (
 	"net/http"
 
-	"github.com/gorilla/sessions"
 	"go.uber.org/zap"
 )
 
@@ -20,79 +19,32 @@ type Session interface {
 	SessionReader
 }
 
-type session struct {
-	s *sessions.Session
-	r *http.Request
-	w http.ResponseWriter
-	a *App
-}
-
-func (s session) save() {
-	if err := s.s.Save(s.r, s.w); err != nil {
-		s.a.L(s.r).Error("failed to save session", zap.Error(err))
-	}
-}
-
-func (s session) Del(k interface{}) Session {
-	defer s.save()
-	delete(s.s.Values, k)
-	return s
-}
-
-func (s session) Set(k, v interface{}) Session {
-	defer s.save()
-	s.s.Values[k] = v
-	return s
-}
-
-func (s session) Get(k interface{}) (v interface{}) {
-	v, _ = s.s.Values[k]
-	return
-}
-
-func (s session) Pop(k interface{}) interface{} {
-	v, ok := s.s.Values[k]
-	if ok {
-		s.Del(k)
-	}
-
-	return v
-}
-
-type sessionOpts struct {
-	sessionName string
-}
+// SessionOpts will hold all options for session control
+type SessionOpts struct{}
 
 // SessionOption allows for configuring session handling
-type SessionOption func(*sessionOpts)
+type SessionOption func(*SessionOpts)
 
-// SessionName will configure sessions to be saved as a cookie with this name
-func SessionName(n string) SessionOption {
-	return func(o *sessionOpts) {
-		o.sessionName = n
-	}
+type sessionCore struct{ SessionStore }
+
+// NewSessionCore creates the session core part of the core
+func NewSessionCore(sess SessionStore) SessionCore {
+	return &sessionCore{sess}
 }
 
 // DefaultSessionName defines how cookies are named for rb applications by default
 var DefaultSessionName = "rb"
 
-// Session returns a session using the configured session store (often a cookie). If no session can
-// be retrieved a new session will be setup. Callin any method on the session that writes data
-// (Set, Delete and Pop) will cause the response's header to be updated with the new cookie.
-func (a *App) Session(w http.ResponseWriter, r *http.Request, opts ...SessionOption) Session {
-	var o sessionOpts
+func (sc *sessionCore) Session(w http.ResponseWriter, r *http.Request, opts ...SessionOption) Session {
+	var o SessionOpts
 	for _, opt := range opts {
 		opt(&o)
 	}
 
-	if o.sessionName == "" {
-		o.sessionName = DefaultSessionName
-	}
-
-	s, err := a.sess.Get(r, o.sessionName)
+	s, err := sc.SessionStore.LoadSession(w, r, DefaultSessionName)
 	if err != nil {
-		a.L(r).Error("failed to read session, continue with new one", zap.Error(err))
+		L(r).Error("failed to load session", zap.Error(err), zap.String("cookie_name", DefaultSessionName))
 	}
 
-	return session{s, r, w, a}
+	return s
 }

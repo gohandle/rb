@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"net/http"
 
+	"github.com/gohandle/rb/rbjit"
 	"go.uber.org/zap"
 )
 
@@ -39,7 +40,10 @@ var RandRead = rand.Read
 // IDMiddleware creates middleware that looks at common request identification headers and
 // makes it available to the request's context. If none of the request headers are provided
 // a new id is generated.
-func (a *App) IDMiddleware(hdrs ...string) func(http.Handler) http.Handler {
+type IDMiddleware func(http.Handler) http.Handler
+
+// NewIDMiddleware creates the actual middleware
+func NewIDMiddleware(hdrs ...string) IDMiddleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			var rid string
@@ -53,7 +57,7 @@ func (a *App) IDMiddleware(hdrs ...string) func(http.Handler) http.Handler {
 			if rid == "" {
 				var b [18]byte
 				if _, err := RandRead(b[:]); err != nil {
-					a.logs.Error("failed to read random bytes for request id middleware",
+					L(r).Error("failed to read random bytes for request id middleware",
 						zap.Error(err))
 				}
 				rid = base64.URLEncoding.EncodeToString(b[:])
@@ -78,10 +82,13 @@ func RequestLogger(ctx context.Context) (l *zap.Logger) {
 
 // LoggerMiddleware will create a request scoped logger that uses the request id to make those logs
 // observable for debugging.
-func (a *App) LoggerMiddleware() func(http.Handler) http.Handler {
+type LoggerMiddleware func(http.Handler) http.Handler
+
+// NewLoggerMiddleware creates the actual middleware
+func NewLoggerMiddleware(logs *zap.Logger) LoggerMiddleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			l := a.logs.With(
+			l := logs.With(
 				zap.String("request_url", r.URL.String()),
 				zap.String("request_method", r.Method),
 				zap.Int64("request_length", r.ContentLength),
@@ -95,6 +102,30 @@ func (a *App) LoggerMiddleware() func(http.Handler) http.Handler {
 
 			next.ServeHTTP(w, r.WithContext(
 				WithRequestLogger(r.Context(), l)))
+		})
+	}
+}
+
+// SessionSaveMiddleware will automatically save the session just before the
+// response body is written if the response is JIT (see rbjit package).
+type SessionSaveMiddleware func(http.Handler) http.Handler
+
+// NewSessionSaveMiddleware creates the middleware. An optional non-default cookie
+// name for the session can be provided
+func NewSessionSaveMiddleware(sc SessionCore, nopt ...string) SessionSaveMiddleware {
+
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if err := rbjit.AppendCallback(w, func() {
+				if err := sc.SaveSession(w, r, sc.Session(w, r)); err != nil {
+					L(r).Error("failed to save session during jit callback", zap.Error(err))
+				}
+				L(r).Debug("saved session in jit callback")
+			}); err != nil {
+				L(r).Error("failed to append jit callback for session saving", zap.Error(err))
+			}
+
+			next.ServeHTTP(w, r)
 		})
 	}
 }

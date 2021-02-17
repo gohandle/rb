@@ -6,9 +6,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	rb "github.com/gohandle/rb/rbv2"
-	"github.com/gohandle/rb/rbv2/rbgorilla"
-	"github.com/gohandle/rb/rbv2/rbtest"
+	rb "github.com/gohandle/rb"
+	"github.com/gohandle/rb/rbgorilla"
+	"github.com/gohandle/rb/rbtest"
 	"github.com/gorilla/sessions"
 )
 
