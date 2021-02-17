@@ -7,13 +7,13 @@ import (
 	rb "github.com/gohandle/rb/rbv2"
 )
 
-// Session is a jet template helper that retrieves url parameters
+// Session is a jet template helper that can read session data
 type Session jet.Func
 
 // Name defines the name under which the helper is available in jet templates
 func (Session) Name() string { return "rb_session" }
 
-// NewSession creates the jet template helper for retireving url parameters
+// NewSession creates the jet template helper for reading session data
 func NewSession(sc rb.SessionCore) Session {
 	return func(args jet.Arguments) (v reflect.Value) {
 		args.RequireNumOfArguments(Session.Name(nil), 1, 1)

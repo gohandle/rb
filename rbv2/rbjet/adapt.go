@@ -19,6 +19,8 @@ func Adapt(
 	routeHelper jethelper.Route,
 	transHelper jethelper.Trans,
 	sessionHelper jethelper.Session,
+	fieldErrHelper jethelper.FieldError,
+	nonFieldErrHelper jethelper.NonFieldError,
 ) rb.Templates {
 	if urlHelper != nil {
 		jset.AddGlobalFunc(urlHelper.Name(), jet.Func(urlHelper))
@@ -38,6 +40,14 @@ func Adapt(
 
 	if sessionHelper != nil {
 		jset.AddGlobalFunc(sessionHelper.Name(), jet.Func(sessionHelper))
+	}
+
+	if fieldErrHelper != nil {
+		jset.AddGlobalFunc(fieldErrHelper.Name(), jet.Func(fieldErrHelper))
+	}
+
+	if nonFieldErrHelper != nil {
+		jset.AddGlobalFunc(nonFieldErrHelper.Name(), jet.Func(nonFieldErrHelper))
 	}
 
 	return adapted{jset}

@@ -52,6 +52,8 @@ func NewDefault(router *mux.Router, jset *jet.Set, fdec *form.Decoder, val *vali
 			jethelper.NewRoute(rc),
 			jethelper.NewTrans(tc),
 			jethelper.NewSession(sc),
+			jethelper.NewFieldError(),
+			jethelper.NewNonFieldError(),
 		)),
 		rb.NewBindCore(rbplayg.AdaptDecoder(fdec), rbplayg.AdaptValidator(val)),
 		sc,
