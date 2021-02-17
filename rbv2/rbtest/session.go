@@ -8,18 +8,6 @@ import (
 	rb "github.com/gohandle/rb/rbv2"
 )
 
-// sessionReader implements rb.Session but only allows reading
-// type sessionReader struct{ vals map[interface{}]interface{} }
-
-// func (s *sessionReader) Get(k interface{}) (v interface{}) {
-// 	if s.vals == nil {
-// 		s.vals = make(map[interface{}]interface{})
-// 	}
-
-// 	v, _ = s.vals[k]
-// 	return
-// }
-
 // ReadSession allows for asserting sessions in tests
 func ReadSession(tb testing.TB, sc rb.SessionCore, name, rawCookie string) rb.SessionReader {
 	c, err := parseCookie(rawCookie, name)

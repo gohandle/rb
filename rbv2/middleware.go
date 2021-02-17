@@ -39,7 +39,10 @@ var RandRead = rand.Read
 // IDMiddleware creates middleware that looks at common request identification headers and
 // makes it available to the request's context. If none of the request headers are provided
 // a new id is generated.
-func IDMiddleware(hdrs ...string) func(http.Handler) http.Handler {
+type IDMiddleware func(http.Handler) http.Handler
+
+// NewIDMiddleware creates the actual middleware
+func NewIDMiddleware(hdrs ...string) IDMiddleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			var rid string
@@ -78,7 +81,10 @@ func RequestLogger(ctx context.Context) (l *zap.Logger) {
 
 // LoggerMiddleware will create a request scoped logger that uses the request id to make those logs
 // observable for debugging.
-func LoggerMiddleware(logs *zap.Logger) func(http.Handler) http.Handler {
+type LoggerMiddleware func(http.Handler) http.Handler
+
+// NewLoggerMiddleware creates the actual middleware
+func NewLoggerMiddleware(logs *zap.Logger) LoggerMiddleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			l := logs.With(

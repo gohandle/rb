@@ -17,7 +17,7 @@ func TestRequestIDMiddleware(t *testing.T) {
 
 	t.Run("without any headers", func(t *testing.T) {
 		w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
-		IDMiddleware()(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		NewIDMiddleware()(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "rid:%s", RequestID(r.Context()))
 		})).ServeHTTP(w, r)
 
@@ -30,7 +30,7 @@ func TestRequestIDMiddleware(t *testing.T) {
 		w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
 		r.Header.Set("X-Amzn-Trace-Id", "foo")
 
-		IDMiddleware(CommonRequestIDHeaders...)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		NewIDMiddleware(CommonRequestIDHeaders...)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "rid:%s", RequestID(r.Context()))
 		})).ServeHTTP(w, r)
 
@@ -49,7 +49,7 @@ func TestRequestLogger(t *testing.T) {
 	t.Run("without a request id", func(t *testing.T) {
 		w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
 
-		LoggerMiddleware(zap.New(lc))(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		NewLoggerMiddleware(zap.New(lc))(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if act := RequestLogger(r.Context()); act == nil {
 				t.Fatalf("got: %v", act)
 			}
@@ -67,7 +67,7 @@ func TestRequestLogger(t *testing.T) {
 	t.Run("with a request id", func(t *testing.T) {
 		w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
 
-		IDMiddleware()(LoggerMiddleware(zap.New(lc))(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		NewIDMiddleware()(NewLoggerMiddleware(zap.New(lc))(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if act := RequestLogger(r.Context()); act == nil {
 				t.Fatalf("got: %v", act)
 			}

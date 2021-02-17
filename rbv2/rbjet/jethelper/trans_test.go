@@ -20,7 +20,7 @@ func TestTransHelper(t *testing.T) {
 	b.AddMessages(language.English, &i18n.Message{ID: "my.msg.id", Other: "my msg"})
 
 	tc := rbi18n.Adapt(b)
-	tmpl, _ := rbjet.Adapt(jet.NewSet(l), nil, nil, nil, jethelper.NewTrans(tc), nil, nil, nil).Lookup("foo.html")
+	tmpl, _ := rbjet.Adapt(jet.NewSet(l), nil, nil, nil, jethelper.NewTrans(tc), nil, nil, nil, nil).Lookup("foo.html")
 
 	w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
 	if err := tmpl.Execute(w, r, nil, nil); err != nil {

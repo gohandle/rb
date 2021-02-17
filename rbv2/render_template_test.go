@@ -13,7 +13,7 @@ func TestRenderTemplate(t *testing.T) {
 	l := jet.NewInMemLoader()
 	l.Set("foo.html", `foo, {{foo}}`)
 
-	rc := rb.NewRenderCore(rbjet.Adapt(jet.NewSet(l), nil, nil, nil, nil, nil, nil, nil))
+	rc := rb.NewRenderCore(rbjet.Adapt(jet.NewSet(l), nil, nil, nil, nil, nil, nil, nil, nil))
 
 	w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
 	rc.Render(w, r, rb.Template("foo.html", nil, rb.TemplateVar("foo", "bar")), rb.Status(201))

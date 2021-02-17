@@ -17,7 +17,7 @@ func TestSessionHelper(t *testing.T) {
 	l.Set("foo.html", `{{ rb_session("foo") }}`)
 
 	sc := rb.NewSessionCore(rbgorilla.AdaptSessionStore(sessions.NewCookieStore(make([]byte, 32))))
-	tmpl, _ := rbjet.Adapt(jet.NewSet(l), nil, nil, nil, nil, jethelper.NewSession(sc), nil, nil).Lookup("foo.html")
+	tmpl, _ := rbjet.Adapt(jet.NewSet(l), nil, nil, nil, nil, jethelper.NewSession(sc), nil, nil, nil).Lookup("foo.html")
 
 	w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
 	sc.Session(w, r).Set("foo", "bar")

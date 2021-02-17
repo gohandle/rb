@@ -21,7 +21,7 @@ func TestFieldErrHelper(t *testing.T) {
 	}{})
 
 	tmpl, _ := rbjet.Adapt(jet.NewSet(l), nil, nil, nil, nil, nil,
-		jethelper.NewFieldError(), jethelper.NewNonFieldError()).Lookup("foo.html")
+		jethelper.NewFieldError(), jethelper.NewNonFieldError(), nil).Lookup("foo.html")
 
 	vars := jet.VarMap{}
 	vars.Set("err1", err1)

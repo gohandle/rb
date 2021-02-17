@@ -20,16 +20,10 @@
 - [ ] MUST add helpers for: url(), t(), field_error(). Depending on the respecitve Core 
       is available in the app.
 - [ ] COULD add an option to make all generated urls on top of a basepath
+- [ ] MUST extend csrf middleware with origin checking: https://github.com/gorilla/csrf/blob/master/csrf.go#L249
+- [ ] MUST provide more indepth coverage of csrf package
+- [ ] MUST Test different form sources
+- [ ] COULD Test the various jet helpers through using the app/core
 
-## Testing Backlog
-- [ ] Test different form sources
-- [ ] Test the various jet helpers through using the app/core
-
-## Template Helpers
-
-- Needs access to the core and all methods there are dependant on the request/response
-      - Can be done through a variable that is set on each render, and then retrieved in each function
-        - But that may not be supported stdlib funcmap
-- Two formats:
-    - Jet template func: `type Func func(Arguments) reflect.Value`
-    - Std can be anything: returning two values
+## Flash 
+- [ ] Add middleware that pops from the session core and make it available to the context
