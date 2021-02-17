@@ -3,89 +3,56 @@ package rb
 import (
 	"net/http"
 
-	"github.com/CloudyKit/jet/v6"
-	"github.com/go-playground/form/v4"
-	"github.com/go-playground/validator/v10"
-	"github.com/gorilla/csrf"
-	"github.com/gorilla/mux"
-	"github.com/gorilla/sessions"
+	"github.com/gohandle/rb/rbjit"
 	"go.uber.org/zap"
 )
 
-// A App encapsulates a set of well-known libraries from the Go ecosystem to allow for rapid
-// development of server-side rendered web applications
-type App struct {
-	logs *zap.Logger
-	fdec *form.Decoder
-	view *jet.Set
-	val  *validator.Validate
-	sess sessions.Store
-	mux  *mux.Router
-	opts AppOptions
+// ActionFunc implements an application action
+type ActionFunc func(Ctx) error
+
+// App provides application wide functionality
+type App interface {
+	Action(af ActionFunc) http.Handler
 }
 
-// New inits an rb App. All the required dependencies should be initializes and passed
-// to this constructing method. By default it will add default helpers to the template
-// engine and default middleware to the router. This can behaviour can be customized
-// with any of the available options
-func New(
-	logs *zap.Logger,
-	fdec *form.Decoder,
-	view *jet.Set,
-	val *validator.Validate,
-	sess sessions.Store,
-	mux *mux.Router,
-	opts ...AppOption,
-) *App {
-	a := &App{
-		logs: logs,
-		fdec: fdec,
-		view: view,
-		val:  val,
-		sess: sess,
-		mux:  mux,
-	}
+// DefaultApp contains sensible default dependencies to create a App quickly
+type DefaultApp struct {
+	core Core
+}
 
-	for _, o := range opts {
-		o(&a.opts)
-	}
+// New creates an app using the provided core while adding the default Middleware to the router core.
+func New(core Core, logs *zap.Logger) App {
+	core.Use(NewIDMiddleware(CommonRequestIDHeaders...))
+	core.Use(NewLoggerMiddleware(logs))
+	core.Use(rbjit.NewMiddleware())
+	core.Use(NewSessionSaveMiddleware(core))
+	core.Use(NewCSRFMiddlware(core, core))
 
-	if view != nil && !a.opts.noDefaultHelpers {
-		view.AddGlobalFunc("url", a.urlHelper)
-		view.AddGlobalFunc("field_error", a.fieldErrorHelper)
-		view.AddGlobalFunc("non_field_error", a.nonFieldErrorHelper)
-	}
+	return &DefaultApp{core}
+}
 
-	if mux != nil && !a.opts.noDefaultMiddleware {
-		mux.Use(a.IDMiddleware(CommonRequestIDHeaders...))
-		mux.Use(a.LoggerMiddleware())
-		if a.opts.csrfKey != nil {
-			mux.Use(csrf.Protect(a.opts.csrfKey, a.opts.csrfOptions...))
+// Action creates an http.Handler from our action func
+func (a *DefaultApp) Action(af ActionFunc) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		c := NewCtx(rbjit.New(w), r, a.core)
+		if err := af(c); err != nil {
+			a.core.HandleError(w, c.Request(), err)
 		}
-	}
-
-	return a
+	})
 }
 
-// L provides a very compact method for returning a zap logger. If provided, it will first check the
-// request for a request-scoped logger. Or else it will return the logger configured on the app. If that
-// one is also nil zero it returns a no-op Logger
-func (a *App) L(r ...*http.Request) (l *zap.Logger) {
-	if len(r) > 0 {
-		if l = RequestLogger(r[0].Context()); l != nil {
-			return
-		}
+// L is utility method that returns a zap logger, if possible from the request
+// context. If not it will return a NopLogger
+func L(r ...*http.Request) *zap.Logger {
+	if len(r) < 1 {
+		return zap.NewNop()
 	}
 
-	if l = a.logs; l != nil {
-		return
+	l := RequestLogger(r[0].Context())
+	if l != nil {
+		return l
 	}
 
-	return zap.NewNop()
-}
-
-// RenderBind can be implemented for content types that can be Bound and rendered (like JSON)
-type RenderBind interface {
-	Render
-	Bind
+	l, _ = zap.NewDevelopment()
+	return l
 }

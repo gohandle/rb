@@ -2,38 +2,28 @@ package rbtest
 
 import (
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
-	"github.com/gohandle/rb"
-	"github.com/gorilla/sessions"
+	rb "github.com/gohandle/rb"
 )
 
-// testSession implements rb.Session but only allows reading
-type testSession struct{ vals map[interface{}]interface{} }
-
-func (s *testSession) Get(k interface{}) (v interface{}) {
-	if s.vals == nil {
-		s.vals = make(map[interface{}]interface{})
-	}
-
-	v, _ = s.vals[k]
-	return
-}
-
-// ReadSession provides a covenient method for reading session data from a cookie in tests. It
-// requires a cookiestore that is configured the same way as the store that writes the cookie.
-func ReadSession(tb testing.TB, s *sessions.CookieStore, name, rawCookie string) rb.SessionReader {
+// ReadSession allows for asserting sessions in tests
+func ReadSession(tb testing.TB, sc rb.SessionCore, name, rawCookie string) rb.SessionReader {
 	c, err := parseCookie(rawCookie, name)
 	if err != nil {
-		fatalf(tb, "failed to parse Set-Cookie header name=%s (%s): %v", name, rawCookie, err)
+		tb.Fatalf("failed to parse raw cookie: %v", err)
 	}
 
-	sess := sessions.NewSession(s, name)
-	if err = s.Codecs[0].Decode(name, c.Value, &sess.Values); err != nil {
-		fatalf(tb, "failed to decode cookie: %v", err)
+	r := httptest.NewRequest("GET", "/", nil)
+	r.AddCookie(c)
+
+	s, err := sc.LoadSession(nil, r, name)
+	if err != nil {
+		tb.Fatalf("failed to load session: %v", err)
 	}
 
-	return &testSession{vals: sess.Values}
+	return s
 }
 
 func parseCookie(rawCookies, name string) (*http.Cookie, error) {

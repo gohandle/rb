@@ -6,26 +6,26 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gorilla/csrf"
+	rb "github.com/gohandle/rb"
+	"github.com/gohandle/rb/rbgorilla"
+	"github.com/gorilla/sessions"
 )
 
-// GenerateCSRF generates the two parts required to pass CSRF protection. The cookie and the token
-// that should be send together
-func GenerateCSRF(tb testing.TB, k []byte, s ...string) (cookieValue, token string) {
-	cookieName := "_rb_csrf"
-	if len(s) > 0 {
-		cookieName = s[0]
-	}
+// GenerateCSRF generates a valid cookie value and csrf token for testing requests
+func GenerateCSRF(tb testing.TB, k []byte) (c *http.Cookie, tok string) {
+	sc := rb.NewSessionCore(rbgorilla.AdaptSessionStore(sessions.NewCookieStore(k)))
 
 	w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
-	csrf.Protect(k[:], csrf.CookieName(cookieName))(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "%s", csrf.Token(r))
+	rb.NewCSRFMiddlware(sc, rb.BasicErrorHandler)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "%s", rb.CSRFToken(r.Context()))
+		sc.SaveSession(w, r, sc.Session(w, r))
 	})).ServeHTTP(w, r)
 
-	c, err := parseCookie(w.Header().Get("Set-Cookie"), cookieName)
+	c, err := parseCookie(w.Header().Get("Set-Cookie"), rb.DefaultSessionName)
 	if err != nil {
-		fatalf(tb, "failed to parse cookie: %v", err)
+		tb.Fatalf("failed to parse cookie: %v", err)
 	}
 
-	return c.Value, w.Body.String()
+	return c, w.Body.String()
+
 }
