@@ -18,7 +18,7 @@ func TestParamsHelper(t *testing.T) {
 
 	m := mux.NewRouter()
 	rc := rbgorilla.AdaptRouter(m)
-	tmpl, _ := rbjet.Adapt(jet.NewSet(l), nil, jethelper.NewParams(rc), nil, nil).Lookup("foo.html")
+	tmpl, _ := rbjet.Adapt(jet.NewSet(l), nil, jethelper.NewParams(rc), nil, nil, nil).Lookup("foo.html")
 
 	m.Name("foo").Path("/x/{id}/y").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if err := tmpl.Execute(w, r, nil, nil); err != nil {

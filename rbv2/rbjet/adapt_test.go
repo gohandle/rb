@@ -12,7 +12,7 @@ func TestAdaptedExecute(t *testing.T) {
 	l := jet.NewInMemLoader()
 	l.Set("foo.html", `{{ rb_response.Header()["Foo"][0] }}{{rb_request.URL.Path}}`)
 
-	tmpl, _ := rbjet.Adapt(jet.NewSet(l), nil, nil, nil, nil).Lookup("foo.html")
+	tmpl, _ := rbjet.Adapt(jet.NewSet(l), nil, nil, nil, nil, nil).Lookup("foo.html")
 	w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/foo", nil)
 	w.Header().Set("foo", "bar")
 
