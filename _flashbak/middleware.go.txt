@@ -1,0 +1,42 @@
+
+
+// FlashMiddleware pops flash messages from the session and stores it in the context
+type FlashMiddleware func(http.Handler) http.Handler
+
+// FlashSessionField is the field name of the sesion that contains flash messages
+const FlashSessionField = "_rb_flash"
+
+// FlashMessages returns the id token from the context if it has any
+func FlashMessages(ctx context.Context) (msgs []string) {
+	msgs, _ = ctx.Value(ctxKey("flash")).([]string)
+	return
+}
+
+// WithFlashMessages sets the id token context value
+func WithFlashMessages(ctx context.Context, msgs []string) context.Context {
+	return context.WithValue(ctx, ctxKey("flash"), msgs)
+}
+
+// Flash is a small helper that appends a flash message to the session. The Ctx
+// implements the first argument.
+func Flash(c interface {
+	Session(o ...SessionOption) Session
+}, ms ...string) {
+	msgs, _ := c.Session().Get(FlashSessionField).([]string)
+	msgs = append(msgs, ms...)
+	c.Session().Set(FlashSessionField, msgs)
+}
+
+// NewFlashMiddleware creates the actual middleware
+func NewFlashMiddleware(sc SessionCore) LoggerMiddleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			msgs, ok := sc.Session(w, r).Pop("_rb_flash").([]string)
+			if ok && len(msgs) > 0 {
+				r.WithContext(WithFlashMessages(r.Context(), msgs))
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
+}

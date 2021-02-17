@@ -1,4 +1,6 @@
 ## Backlog
+- [ ] BUG: Calling sessions save multiple times causes multiple cookies with the same name being written
+      to the Set-Cookie header
 - [ ] Think about "base_page" functionality, making it ergonomic without inject
 - [x] Think about translate
 - [x] Have customizable error handling for server errors instead of http.Error in
