@@ -102,7 +102,7 @@ func TestSessionSaveMiddleware(t *testing.T) {
 				sc.Session(w, r).Set("foo", "bar")
 			}))).ServeHTTP(w, r)
 
-	s := rbtest.ReadSession(t, sc, rb.DefaultCookieName, w.Header().Get("Set-Cookie"))
+	s := rbtest.ReadSession(t, sc, rb.DefaultSessionName, w.Header().Get("Set-Cookie"))
 	if act := s.Get("foo").(string); act != "bar" {
 		t.Fatalf("got: %v", act)
 	}

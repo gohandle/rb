@@ -2,9 +2,25 @@ package rb_test
 
 import (
 	"fmt"
+	"math/rand"
 	"net/http"
+	"net/http/httptest"
+	"net/url"
+	"strings"
+	"testing"
 
+	"github.com/CloudyKit/jet/v6"
+	"github.com/go-playground/form/v4"
+	"github.com/go-playground/validator/v10"
 	rb "github.com/gohandle/rb/rbv2"
+	"github.com/gohandle/rb/rbv2/rbcore"
+	"github.com/gohandle/rb/rbv2/rbtest"
+	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zaptest/observer"
+	"golang.org/x/text/language"
 )
 
 func HandleFoo(a rb.App) http.Handler {
@@ -28,47 +44,67 @@ func HandleFoo(a rb.App) http.Handler {
 		p.ID = c.Params()["id"]
 		p.Curr = c.Route()
 
-		c.Session(rb.CookieName("my_sess")).Set("foo", "bar")
+		c.Session().Set("foo", "bar")
 
 		return c.Render(rb.Template("foo.html", p), rb.Status(201))
 	})
 }
 
-// func TestFooExample(t *testing.T) {
-// 	m, l, k, b := mux.NewRouter(), jet.NewInMemLoader(), make([]byte, 32), i18n.NewBundle(language.English)
-// 	c := rbcore.NewDefault(m, jet.NewSet(l), form.NewDecoder(), validator.New(), sessions.NewCookieStore(k), b)
-// 	a := rb.New(c)
+func TestFooExample(t *testing.T) {
+	rnd := rand.New(rand.NewSource(1))
+	rb.RandRead = rnd.Read
 
-// 	l.Set("foo.html", `{{.Msg}}: {{.Foo}}: {{.Loc}}: {{.ID}}: {{.Curr}}`)
-// 	b.AddMessages(language.English, &i18n.Message{
-// 		ID:    "page.about.title",
-// 		Other: "About us",
-// 	})
-// 	b.AddMessages(language.Dutch, &i18n.Message{
-// 		ID:    "page.about.title",
-// 		Other: "Over ons",
-// 		One:   "Over ons 1",
-// 	})
+	m, l, k, b := mux.NewRouter(), jet.NewInMemLoader(), make([]byte, 32), i18n.NewBundle(language.English)
+	c := rbcore.NewDefault(m, jet.NewSet(l), form.NewDecoder(), validator.New(), sessions.NewCookieStore(k), b)
+	zc, obs := observer.New(zap.DebugLevel)
+	a := rb.New(c, zap.New(zc))
 
-// 	m.Name("foo").Path("/foo/{id}").Handler(HandleFoo(a))
+	l.Set("foo.html", `{{.Msg}}: {{.Foo}}: {{.Loc}}: {{.ID}}: {{.Curr}}{{ rb_csrf() }}`)
+	b.AddMessages(language.English, &i18n.Message{
+		ID:    "page.about.title",
+		Other: "About us",
+	})
+	b.AddMessages(language.Dutch, &i18n.Message{
+		ID:    "page.about.title",
+		Other: "Over ons",
+		One:   "Over ons 1",
+	})
 
-// 	d := strings.NewReader(url.Values{"foo": {"rab"}}.Encode())
-// 	w, r := httptest.NewRecorder(), httptest.NewRequest("POST", "/foo/888", d)
-// 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-// 	r.Header.Set("Accept-Language", "nl")
+	m.Name("foo").Path("/foo/{id}").Handler(HandleFoo(a))
 
-// 	m.ServeHTTP(w, r)
+	// setup the request, valid csrf and form submission
+	ccookie, tok := rbtest.GenerateCSRF(t, k)
+	d := strings.NewReader(url.Values{"foo": {"rab"}, rb.CSRFFormFieldName: {tok}}.Encode())
+	w, r := httptest.NewRecorder(), httptest.NewRequest("POST", "/foo/888", d)
+	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	r.Header.Set("Accept-Language", "nl")
+	r.Header.Set("X-Request-ID", "my-req-id")
+	r.AddCookie(ccookie)
 
-// 	if w.Code != 201 {
-// 		t.Fatalf("got: %v", w.Code)
-// 	}
+	// serve and assert the response
+	m.ServeHTTP(w, r)
+	if w.Code != 201 {
+		t.Fatalf("got: %v %v", w.Code, w.Body.String())
+	}
 
-// 	if act := w.Body.String(); act != "Over ons 1: rab: /foo/111: 888: foo" {
-// 		t.Fatalf("got: %v", act)
-// 	}
+	if act := w.Body.String(); act != "Over ons 1: rab: /foo/111: 888: foo650YpEeEBF2H88Z88idG6ZWvWiU2eVG6ov9s1HHEg/G5YOSjZgZhEpHMmXNoRVubAMmdaCZ6LffZRGjToCZFuA==" {
+		t.Fatalf("got: %v", act)
+	}
 
-// 	s := rbtest.ReadSession(t, c, "my_sess", w.Header().Get("Set-Cookie"))
-// 	if act := s.Get("foo"); act != "bar" {
-// 		t.Fatalf("got: %v", act)
-// 	}
-// }
+	s := rbtest.ReadSession(t, c, rb.DefaultSessionName, w.Header().Get("Set-Cookie"))
+	if act := s.Get("foo"); act != "bar" {
+		t.Fatalf("got: %v", act)
+	}
+
+	// assert that logging includes a request id
+	var reqid string
+	for _, f := range obs.FilterMessage("render complete").All()[0].Context {
+		if f.Key == "request_id" {
+			reqid = f.String
+		}
+	}
+
+	if reqid != "my-req-id" {
+		t.Fatalf("got: %v", obs)
+	}
+}

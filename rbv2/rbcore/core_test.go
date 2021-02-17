@@ -67,7 +67,7 @@ func TestDefaultCore(t *testing.T) {
 		t.Fatalf("got: %v", act)
 	}
 
-	s := rbtest.ReadSession(t, c, rb.DefaultCookieName, w.Header().Get("Set-Cookie"))
+	s := rbtest.ReadSession(t, c, rb.DefaultSessionName, w.Header().Get("Set-Cookie"))
 	if act := s.Get("foo"); act != "bar" {
 		t.Fatalf("got: %v", act)
 	}

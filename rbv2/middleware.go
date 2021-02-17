@@ -107,17 +107,20 @@ func NewLoggerMiddleware(logs *zap.Logger) LoggerMiddleware {
 }
 
 // SessionSaveMiddleware will automatically save the session just before the
-// response body is written if the response is JIT (see rbjit package)
+// response body is written if the response is JIT (see rbjit package).
 type SessionSaveMiddleware func(http.Handler) http.Handler
 
-// NewSessionSaveMiddleware creates the middleware
-func NewSessionSaveMiddleware(sc SessionCore) SessionSaveMiddleware {
+// NewSessionSaveMiddleware creates the middleware. An optional non-default cookie
+// name for the session can be provided
+func NewSessionSaveMiddleware(sc SessionCore, nopt ...string) SessionSaveMiddleware {
+
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if err := rbjit.AppendCallback(w, func() {
 				if err := sc.SaveSession(w, r, sc.Session(w, r)); err != nil {
 					L(r).Error("failed to save session during jit callback", zap.Error(err))
 				}
+				L(r).Debug("saved session in jit callback")
 			}); err != nil {
 				L(r).Error("failed to append jit callback for session saving", zap.Error(err))
 			}

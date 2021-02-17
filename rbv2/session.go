@@ -20,19 +20,10 @@ type Session interface {
 }
 
 // SessionOpts will hold all options for session control
-type SessionOpts struct {
-	CookieName string
-}
+type SessionOpts struct{}
 
 // SessionOption allows for configuring session handling
 type SessionOption func(*SessionOpts)
-
-// CookieName will configure sessions to be saved as a cookie with this name
-func CookieName(n string) SessionOption {
-	return func(o *SessionOpts) {
-		o.CookieName = n
-	}
-}
 
 type sessionCore struct{ SessionStore }
 
@@ -41,8 +32,8 @@ func NewSessionCore(sess SessionStore) SessionCore {
 	return &sessionCore{sess}
 }
 
-// DefaultCookieName defines how cookies are named for rb applications by default
-var DefaultCookieName = "rb"
+// DefaultSessionName defines how cookies are named for rb applications by default
+var DefaultSessionName = "rb"
 
 func (sc *sessionCore) Session(w http.ResponseWriter, r *http.Request, opts ...SessionOption) Session {
 	var o SessionOpts
@@ -50,13 +41,9 @@ func (sc *sessionCore) Session(w http.ResponseWriter, r *http.Request, opts ...S
 		opt(&o)
 	}
 
-	if o.CookieName == "" {
-		o.CookieName = DefaultCookieName
-	}
-
-	s, err := sc.SessionStore.LoadSession(w, r, o.CookieName)
+	s, err := sc.SessionStore.LoadSession(w, r, DefaultSessionName)
 	if err != nil {
-		L(r).Error("failed to load session", zap.Error(err), zap.String("cookie_name", o.CookieName))
+		L(r).Error("failed to load session", zap.Error(err), zap.String("cookie_name", DefaultSessionName))
 	}
 
 	return s

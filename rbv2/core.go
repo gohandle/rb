@@ -7,8 +7,7 @@ import (
 	"reflect"
 )
 
-// Core provides all functionality in a single interface that can be implemented to provide
-// all request response dependant functionality.
+// Core represents the total interface of what the dependencies provide.
 type Core interface {
 	TranslateCore
 	RouterCore
@@ -23,6 +22,7 @@ type RouterCore interface {
 	URL(w http.ResponseWriter, r *http.Request, s string, opts ...URLOption) string
 	Params(w http.ResponseWriter, r *http.Request) map[string]string
 	Route(w http.ResponseWriter, r *http.Request) string
+	Use(func(http.Handler) http.Handler)
 }
 
 // RenderCore provides part of the core that is responsible for rendering responses. It

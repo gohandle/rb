@@ -28,6 +28,8 @@
 - [ ] COULD Test the various jet helpers through using the app/core
 - [ ] SHOULD check if our JIT response doesn't incure too much performance overhead
 - [ ] COULD add a more ergonomic .Save method directly to the session that allows for defer with error logging
+- [ ] COULD move the csrf middleware to a new package since but need to fix cyclic dependecy with rd
+- [ ] COULD test the rbtest package a bit better
 
 ## Flash 
 - [ ] Add middleware that pops from the session core and make it available to the context

@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/CloudyKit/jet/v6"
-	"github.com/gohandle/rb/rbv2/rbcsrf"
+	rb "github.com/gohandle/rb/rbv2"
 	"github.com/gohandle/rb/rbv2/rbjet"
 	"github.com/gohandle/rb/rbv2/rbjet/jethelper"
 )
@@ -18,7 +18,7 @@ func TestCSRFHelper(t *testing.T) {
 		nil, nil, nil, nil, nil, nil, nil, jethelper.NewCSRF()).Lookup("foo.html")
 
 	w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/x/555/y", nil)
-	r = r.WithContext(rbcsrf.WithToken(r.Context(), "foo"))
+	r = r.WithContext(rb.WithCSRFToken(r.Context(), "foo"))
 
 	if err := tmpl.Execute(w, r, nil, nil); err != nil {
 		t.Fatalf("got: %v", err)

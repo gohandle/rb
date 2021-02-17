@@ -15,15 +15,20 @@ type App interface {
 	Action(af ActionFunc) http.Handler
 }
 
-// DefaultApp contains sensible dependencies to
-// create a App quickly
+// DefaultApp contains sensible default dependencies to create a App quickly
 type DefaultApp struct {
 	core Core
 }
 
-// New creates an app using the provided core while adding
-// the default Middleware to the router core.
-func New(core Core) App {
+// New creates an app using the provided core while adding the default Middleware to the router core.
+func New(core Core, logs *zap.Logger) App {
+
+	core.Use(NewIDMiddleware(CommonRequestIDHeaders...))
+	core.Use(NewLoggerMiddleware(logs))
+	core.Use(rbjit.NewMiddleware())
+	core.Use(NewSessionSaveMiddleware(core))
+	core.Use(NewCSRFMiddlware(core, core))
+
 	return &DefaultApp{core}
 }
 

@@ -4,7 +4,7 @@ import (
 	"reflect"
 
 	"github.com/CloudyKit/jet/v6"
-	"github.com/gohandle/rb/rbv2/rbcsrf"
+	rb "github.com/gohandle/rb/rbv2"
 )
 
 // CSRF is a jet template helper that retrieves the current CSRF  token
@@ -22,7 +22,7 @@ func NewCSRF() CSRF {
 			args.Panicf("failed to read response and request: %v", err)
 		}
 
-		tok := rbcsrf.Token(r.Context())
+		tok := rb.CSRFToken(r.Context())
 		if tok == "" {
 			args.Panicf("no CSRF token in request context")
 		}

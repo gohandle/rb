@@ -21,7 +21,7 @@ func TestSessions(t *testing.T) {
 		t.Fatalf("got: %v", err)
 	}
 
-	sr := rbtest.ReadSession(t, sc, rb.DefaultCookieName, w.Header().Get("Set-Cookie"))
+	sr := rbtest.ReadSession(t, sc, rb.DefaultSessionName, w.Header().Get("Set-Cookie"))
 	if act := sr.Get("foo"); act != "bar" {
 		t.Fatalf("got: %v", act)
 	}

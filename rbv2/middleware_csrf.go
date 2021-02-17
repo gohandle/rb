@@ -1,99 +1,90 @@
-package rbcsrf
+package rb
 
 import (
 	"context"
-	"crypto/rand"
 	"crypto/subtle"
 	"encoding/base64"
 	"errors"
 	"net/http"
 	"strconv"
 
-	rb "github.com/gohandle/rb/rbv2"
 	"go.uber.org/zap"
 )
 
 const (
-	// TokenLength is the token length
-	TokenLength = 32
+	// CSRFTokenLength is the token length
+	CSRFTokenLength = 32
 
-	// SessionFieldName configures part of the session that will be checked
-	SessionFieldName = "_rb_csrf"
+	// CSRFSessionFieldName configures part of the session that will be checked
+	CSRFSessionFieldName = "_rb_csrf"
 
-	// FormFieldName configures which part of the form body will be checked
-	FormFieldName = "rb.csrf.token"
+	// CSRFFormFieldName configures which part of the form body will be checked
+	CSRFFormFieldName = "rb.csrf.token"
 
-	// HeaderName configures which header will be checked for csrf token
-	HeaderName = "X-RB-CSRF-Token"
+	// CSRFHeaderName configures which header will be checked for csrf token
+	CSRFHeaderName = "X-RB-CSRF-Token"
 )
 
 var (
-	// ErrNoReferer is returned when a HTTPS request provides an empty Referer
-	// header.
-	ErrNoReferer = errors.New("referer not supplied")
-
-	// ErrBadToken is returned if the CSRF token in the request does not match
+	// ErrBadCSRFToken is returned if the CSRF token in the request does not match
 	// the token in the session, or is otherwise malformed.
-	ErrBadToken = errors.New("CSRF token invalid")
+	ErrBadCSRFToken = errors.New("CSRF token invalid")
 )
 
-// make context keys private
-type ctxKey string
-
-// Token returns the id token from the context if it has any
-func Token(ctx context.Context) (tok string) {
+// CSRFToken returns the id token from the context if it has any
+func CSRFToken(ctx context.Context) (tok string) {
 	tok, _ = ctx.Value(ctxKey("token")).(string)
 	return
 }
 
-// WithToken sets the id token context value
-func WithToken(ctx context.Context, tok string) context.Context {
+// WithCSRFToken sets the id token context value
+func WithCSRFToken(ctx context.Context, tok string) context.Context {
 	return context.WithValue(ctx, ctxKey("token"), tok)
 }
 
-// Middleware protects all non-get methods from cross-site request forgery
+// CSRFMiddleware protects all non-get methods from cross-site request forgery
 // by comparing a secret token in the users's session with one provided in the
 // request body or header
-type Middleware func(http.Handler) http.Handler
+type CSRFMiddleware func(http.Handler) http.Handler
 
-// New creates the actual middleware
-func New(sc rb.SessionCore, ec rb.ErrorCore) Middleware {
+// NewCSRFMiddlware creates the actual middleware
+func NewCSRFMiddlware(sc SessionCore, ec ErrorCore) CSRFMiddleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 			// check if there is a valid token in the session
-			realToken, ok := sc.Session(w, r).Get(SessionFieldName).([]byte)
-			if !ok || len(realToken) != TokenLength {
+			realToken, ok := sc.Session(w, r).Get(CSRFSessionFieldName).([]byte)
+			if !ok || len(realToken) != CSRFTokenLength {
 
-				rb.L(r).Debug("no valid token in session",
+				L(r).Debug("no valid token in session",
 					zap.Bool("present", ok), zap.Int("len", len(realToken)))
 
 				// if not, generate new random bytes
-				realToken = gen(TokenLength)
+				realToken = gen(CSRFTokenLength)
 
 				// Save the new (real) token in the session store.
-				sc.Session(w, r).Set(SessionFieldName, realToken)
+				sc.Session(w, r).Set(CSRFSessionFieldName, realToken)
 			}
 
 			// mask the token to protect again BREACH and encode using base64
 			masked := mask(realToken)
 
 			// store in the request context so it can be retrieved in handlers
-			r = r.WithContext(WithToken(r.Context(), masked))
+			r = r.WithContext(WithCSRFToken(r.Context(), masked))
 
 			// unsafe methods need inspection
 			if _, ok := safeMethods[r.Method]; !ok {
-				rb.L(r).Debug("unsafe method, comparing CSRF tokens", zap.String("method", r.Method))
+				L(r).Debug("unsafe method, comparing CSRF tokens", zap.String("method", r.Method))
 
 				// Retrieve the combined token (pad + masked) token and unmask it.
 				requestToken := unmask(requestToken(r))
 
 				// Compare with constant time
 				if subtle.ConstantTimeCompare(requestToken, realToken) == 0 {
-					rb.L(r).Debug("failed CSRF token compare",
+					L(r).Debug("failed CSRF token compare",
 						zap.Int("len_req_token", len(requestToken)), zap.Int("len_real_token", len(realToken)))
 
-					ec.HandleError(w, r, ErrBadToken)
+					ec.HandleError(w, r, ErrBadCSRFToken)
 					return
 				}
 			}
@@ -111,20 +102,20 @@ func New(sc rb.SessionCore, ec rb.ErrorCore) Middleware {
 // body or HTTP header. It will return nil if the token fails to decode.
 func requestToken(r *http.Request) []byte {
 	// 1. Check the HTTP header first.
-	issued := r.Header.Get(HeaderName)
+	issued := r.Header.Get(CSRFHeaderName)
 
 	// 2. Fall back to the POST (form) value.
 	if issued == "" {
-		issued = r.PostFormValue(FormFieldName)
-		rb.L(r).Debug("no CSRF token in header, reading POST form values",
+		issued = r.PostFormValue(CSRFFormFieldName)
+		L(r).Debug("no CSRF token in header, reading POST form values",
 			zap.String("content_type", r.Header.Get("Content-Type")))
 	}
 
 	// 3. Finally, fall back to the multipart form (if set).
 	if issued == "" && r.MultipartForm != nil {
-		rb.L(r).Debug("no CSRF token in header or form, reading multi-part values")
+		L(r).Debug("no CSRF token in header or form, reading multi-part values")
 
-		vals := r.MultipartForm.Value[FormFieldName]
+		vals := r.MultipartForm.Value[CSRFFormFieldName]
 
 		if len(vals) > 0 {
 			issued = vals[0]
@@ -135,7 +126,7 @@ func requestToken(r *http.Request) []byte {
 	// nil byte slice on a decoding error (this will fail upstream).
 	decoded, err := base64.StdEncoding.DecodeString(issued)
 	if err != nil {
-		rb.L(r).Debug("failed to base64 decode the CSRF token", zap.Error(err))
+		L(r).Debug("failed to base64 decode the CSRF token", zap.Error(err))
 		return nil
 	}
 
@@ -149,7 +140,7 @@ var safeMethods = map[string]struct{}{
 // gen will generate 'l' random bytes or panic.
 func gen(l int) (b []byte) {
 	b = make([]byte, l)
-	if n, err := rand.Read(b); n != l || err != nil {
+	if n, err := RandRead(b); n != l || err != nil {
 		panic("failed to read CSRF random bytes: " + err.Error() + ", n:" + strconv.Itoa(n))
 	}
 
@@ -164,7 +155,7 @@ func gen(l int) (b []byte) {
 // randomises the token on a per-request basis without breaking multiple browser
 // tabs/windows.
 func mask(realToken []byte) string {
-	otp := gen(TokenLength)
+	otp := gen(CSRFTokenLength)
 
 	// XOR the OTP with the real token to generate a masked token. Append the
 	// OTP to the front of the masked token to allow unmasking in the subsequent
@@ -176,13 +167,13 @@ func mask(realToken []byte) string {
 // unmasked request token for comparison.
 func unmask(issued []byte) []byte {
 	// Issued tokens are always masked and combined with the pad.
-	if len(issued) != TokenLength*2 {
+	if len(issued) != CSRFTokenLength*2 {
 		return nil
 	}
 
 	// We now know the length of the byte slice.
-	otp := issued[TokenLength:]
-	masked := issued[:TokenLength]
+	otp := issued[CSRFTokenLength:]
+	masked := issued[:CSRFTokenLength]
 
 	// Unmask the token by XOR'ing it against the OTP used to mask it.
 	return xorToken(otp, masked)

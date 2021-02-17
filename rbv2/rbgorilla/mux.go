@@ -40,6 +40,10 @@ func (ar *adaptedRouter) URL(w http.ResponseWriter, r *http.Request, s string, o
 	return loc.String()
 }
 
+func (ar *adaptedRouter) Use(mw func(http.Handler) http.Handler) {
+	ar.r.Use(mw)
+}
+
 func (ar *adaptedRouter) Params(w http.ResponseWriter, r *http.Request) map[string]string {
 	return mux.Vars(r)
 }
