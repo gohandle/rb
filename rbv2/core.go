@@ -2,7 +2,6 @@ package rb
 
 import (
 	"context"
-	"io"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -74,7 +73,11 @@ type Templates interface {
 
 // TemplateExecuter is the interface that must be implemented by template executers
 type TemplateExecuter interface {
-	Execute(w io.Writer, vars map[string]reflect.Value, data interface{}) (err error)
+	Execute(
+		wr http.ResponseWriter,
+		r *http.Request,
+		vars map[string]reflect.Value,
+		data interface{}) (err error)
 }
 
 // SessionStore allows for saving and retrieving sessions

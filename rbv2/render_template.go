@@ -46,5 +46,5 @@ func (r templateRender) Render(rc RenderCore, wr http.ResponseWriter, req *http.
 		return fmt.Errorf("failed to get template: %w", err)
 	}
 
-	return tmpl.Execute(wr, r.vars, r.val)
+	return tmpl.Execute(wr, req, r.vars, r.val)
 }

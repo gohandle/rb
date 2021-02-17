@@ -42,9 +42,10 @@ func New(
 
 // NewDefault creates a core with default dependencies
 func NewDefault(router *mux.Router, jset *jet.Set, fdec *form.Decoder, val *validator.Validate, ss sessions.Store, bundle *i18n.Bundle) rb.Core {
+	rc := rbgorilla.AdaptRouter(router)
 	return New(
-		rbgorilla.AdaptRouter(router),
-		rb.NewRenderCore(rbjet.Adapt(jset)),
+		rc,
+		rb.NewRenderCore(rbjet.Adapt(jset, rbjet.NewURLHelper(rc))),
 		rb.NewBindCore(rbplayg.AdaptDecoder(fdec), rbplayg.AdaptValidator(val)),
 		rb.NewSessionCore(rbgorilla.AdaptSessionStore(ss)),
 		rbi18n.Adapt(bundle),

@@ -32,7 +32,8 @@ func (ar *adaptedRouter) URL(w http.ResponseWriter, r *http.Request, s string, o
 
 	loc, err := route.URL(o.Pairs...)
 	if err != nil {
-		rb.L(r).Error("failed to generate url", zap.String("route_name", s), zap.Strings("pairs", o.Pairs))
+		rb.L(r).Error("failed to generate url",
+			zap.String("route_name", s), zap.Strings("pairs", o.Pairs), zap.Error(err))
 		return ""
 	}
 
