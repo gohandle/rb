@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
-
-	"github.com/CloudyKit/jet/v6"
 )
 
 // TemplateRenderOption allows for configurin the rendering of a template
@@ -16,7 +14,7 @@ type TemplateRenderOption func(*templateRender)
 func TemplateVar(name string, v interface{}) TemplateRenderOption {
 	return func(r *templateRender) {
 		if r.vars == nil {
-			r.vars = make(jet.VarMap)
+			r.vars = make(map[string]reflect.Value)
 		}
 
 		r.vars[name] = reflect.ValueOf(v)

@@ -22,7 +22,6 @@ type DefaultApp struct {
 
 // New creates an app using the provided core while adding the default Middleware to the router core.
 func New(core Core, logs *zap.Logger) App {
-
 	core.Use(NewIDMiddleware(CommonRequestIDHeaders...))
 	core.Use(NewLoggerMiddleware(logs))
 	core.Use(rbjit.NewMiddleware())

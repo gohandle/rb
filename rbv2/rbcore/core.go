@@ -41,8 +41,15 @@ func New(
 	}
 }
 
-// NewDefault creates a core with default dependencies
-func NewDefault(router *mux.Router, jset *jet.Set, fdec *form.Decoder, val *validator.Validate, ss sessions.Store, bundle *i18n.Bundle) rb.Core {
+// NewDefault creates a default core with default dependencies
+func NewDefault(
+	router *mux.Router,
+	jset *jet.Set,
+	fdec *form.Decoder,
+	val *validator.Validate,
+	ss sessions.Store,
+	bundle *i18n.Bundle,
+) rb.Core {
 	rc, tc, sc := rbgorilla.AdaptRouter(router), rbi18n.Adapt(bundle), rb.NewSessionCore(rbgorilla.AdaptSessionStore(ss))
 	return New(
 		rc,
