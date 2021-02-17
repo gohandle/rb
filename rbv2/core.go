@@ -83,4 +83,5 @@ type TemplateExecuter interface {
 // SessionStore allows for saving and retrieving sessions
 type SessionStore interface {
 	LoadSession(w http.ResponseWriter, r *http.Request, name string) (Session, error)
+	SaveSession(w http.ResponseWriter, r *http.Request, s Session) error
 }

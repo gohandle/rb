@@ -22,6 +22,9 @@ func TestCSRFMiddleware(t *testing.T) {
 	w1, r1 := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
 	rbcsrf.New(sc, rb.BasicErrorHandler)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "%s", rbcsrf.Token(r.Context()))
+		if err := sc.SaveSession(w, r, sc.Session(w, r)); err != nil {
+			t.Fatalf("failed to save session: %v", err)
+		}
 	})).ServeHTTP(w1, r1)
 
 	s := rbtest.ReadSession(t, sc, rb.DefaultCookieName, w1.Header().Get("Set-Cookie"))

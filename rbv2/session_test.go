@@ -15,10 +15,14 @@ func TestSessions(t *testing.T) {
 	sc := rb.NewSessionCore(rbgorilla.AdaptSessionStore(sessions.NewCookieStore(k[:])))
 
 	w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
-	sc.Session(w, r).Set("foo", "bar")
+	s := sc.Session(w, r).Set("foo", "bar")
 
-	s := rbtest.ReadSession(t, sc, rb.DefaultCookieName, w.Header().Get("Set-Cookie"))
-	if act := s.Get("foo"); act != "bar" {
+	if err := sc.SaveSession(w, r, s); err != nil {
+		t.Fatalf("got: %v", err)
+	}
+
+	sr := rbtest.ReadSession(t, sc, rb.DefaultCookieName, w.Header().Get("Set-Cookie"))
+	if act := sr.Get("foo"); act != "bar" {
 		t.Fatalf("got: %v", act)
 	}
 }

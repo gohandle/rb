@@ -26,6 +26,8 @@
 - [ ] MUST provide more indepth coverage of csrf package
 - [ ] MUST Test different form sources
 - [ ] COULD Test the various jet helpers through using the app/core
+- [ ] SHOULD check if our JIT response doesn't incure too much performance overhead
+- [ ] COULD add a more ergonomic .Save method directly to the session that allows for defer with error logging
 
 ## Flash 
 - [ ] Add middleware that pops from the session core and make it available to the context

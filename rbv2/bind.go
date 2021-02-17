@@ -65,7 +65,7 @@ func (bc *bindCore) Bind(w http.ResponseWriter, r *http.Request, b Bind, opts ..
 	}
 
 	if err := bc.ValidateStruct(r.Context(), b.Value()); err != nil {
-		L(r).Error("validate failed", zap.Error(err))
+		L(r).Debug("validate failed", zap.Error(err))
 		return true, fmt.Errorf("failed to validate: %w", err)
 	}
 

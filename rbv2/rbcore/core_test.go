@@ -46,7 +46,11 @@ func TestDefaultCore(t *testing.T) {
 
 		v.Msg = c.Translate(w, r, "page.about.title")
 
-		c.Session(w, r).Set("foo", "bar")
+		s := c.Session(w, r).Set("foo", "bar")
+
+		if err = c.SaveSession(w, r, s); err != nil {
+			t.Fatalf("got: %v", err)
+		}
 
 		if err = c.Render(w, r, rb.Template("about.html", v)); err != nil {
 			t.Fatalf("got: %v", err)

@@ -23,6 +23,11 @@ func TestSessionAdapt(t *testing.T) {
 	}
 
 	s.Set("foo", "bar")
+	s.Set("rab", "dar")
+
+	if err := ss.SaveSession(w, r, s); err != nil {
+		t.Fatalf("got: %v", err)
+	}
 
 	if w.Header().Get("Set-Cookie") == "" {
 		t.Fatalf("got: %v", w.Header())
@@ -33,6 +38,10 @@ func TestSessionAdapt(t *testing.T) {
 	}
 
 	if act := s.Pop("foo"); act != nil {
+		t.Fatalf("got: %v", act)
+	}
+
+	if act := s.Get("rab"); act != "dar" {
 		t.Fatalf("got: %v", act)
 	}
 }

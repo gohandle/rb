@@ -3,6 +3,7 @@ package rb
 import (
 	"net/http"
 
+	"github.com/gohandle/rb/rbv2/rbjit"
 	"go.uber.org/zap"
 )
 
@@ -20,7 +21,8 @@ type DefaultApp struct {
 	core Core
 }
 
-// New creates an app using default dependencies
+// New creates an app using the provided core while adding
+// the default Middleware to the router core.
 func New(core Core) App {
 	return &DefaultApp{core}
 }
@@ -28,7 +30,7 @@ func New(core Core) App {
 // Action creates an http.Handler from our action func
 func (a *DefaultApp) Action(af ActionFunc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		c := NewCtx(w, r, a.core)
+		c := NewCtx(rbjit.New(w), r, a.core)
 		if err := af(c); err != nil {
 			a.core.HandleError(w, c.Request(), err)
 		}
