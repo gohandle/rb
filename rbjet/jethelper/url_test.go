@@ -19,7 +19,7 @@ func TestURLHelper(t *testing.T) {
 	m.Name("foo").Path("/x/{id}/y")
 	rc := rbgorilla.AdaptRouter(m)
 
-	tmpl, _ := rbjet.Adapt(jet.NewSet(l), jethelper.NewURL(rc), nil, nil, nil, nil, nil, nil, nil).Lookup("foo.html")
+	tmpl, _ := rbjet.Adapt(jet.NewSet(l), jethelper.NewURL(rc), nil, nil, nil, nil, nil, nil, nil, nil).Lookup("foo.html")
 	w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/foo", nil)
 
 	if err := tmpl.Execute(w, r, nil, nil); err != nil {

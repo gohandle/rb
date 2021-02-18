@@ -10,21 +10,21 @@ import (
 	"github.com/gohandle/rb/rbjet/jethelper"
 )
 
-func TestCSRFHelper(t *testing.T) {
+func TestFlashesFHelper(t *testing.T) {
 	l := jet.NewInMemLoader()
-	l.Set("foo.html", `{{ rb_csrf() }}`)
+	l.Set("foo.html", `{{ rb_flashes() }}`)
 
 	tmpl, _ := rbjet.Adapt(jet.NewSet(l),
-		nil, nil, nil, nil, nil, nil, nil, jethelper.NewCSRF(), nil).Lookup("foo.html")
+		nil, nil, nil, nil, nil, nil, nil, nil, jethelper.NewFlashes()).Lookup("foo.html")
 
-	w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/x/555/y", nil)
-	r = r.WithContext(rb.WithCSRFToken(r.Context(), "foo"))
+	w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
+	r = r.WithContext(rb.WithFlashMessages(r.Context(), []string{"foo"}))
 
 	if err := tmpl.Execute(w, r, nil, nil); err != nil {
 		t.Fatalf("got: %v", err)
 	}
 
-	if act := w.Body.String(); act != "foo" {
+	if act := w.Body.String(); act != "[foo]" {
 		t.Fatalf("got: %v", act)
 	}
 }

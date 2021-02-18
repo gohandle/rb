@@ -27,6 +27,7 @@ func New(core Core, logs *zap.Logger) App {
 	core.Use(rbjit.NewMiddleware())
 	core.Use(NewSessionSaveMiddleware(core))
 	core.Use(NewCSRFMiddlware(core, core))
+	core.Use(NewFlashMiddleware(core))
 
 	return &DefaultApp{core}
 }

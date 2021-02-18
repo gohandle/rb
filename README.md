@@ -1,11 +1,12 @@
 ## Backlog
+
 - [ ] MUST extend csrf middleware with origin checking: https://github.com/gorilla/csrf/blob/master/csrf.go#L249
 - [ ] MUST provide more indepth coverage of csrf package and carefully thinkg about security implications
 - [ ] MUST add build-in support for setting a language in the session and detecting in translate core
-- [ ] MUST provide flash functionality out of the box, see _flashbak dir
 - [ ] SHOULD add an option to make all generated urls on top of a basepath
-- [ ] SHOULD add more translate options for default message etc
+- [ ] SHOULD add more c.Translate() options for default message etc
 - [ ] SHOULD Test different form sources
+- [ ] COULD configure the jet helpers through a slice instead of arguments 1-by-1 while still supporting fx di
 - [ ] COULD add better support for configuring names of cookies, fields, headers, etc
 - [ ] COULD add a function to rbtest for creating requests with session date and valid csrf 
 - [ ] COULD Think about "base_page" functionality, making it ergonomic without inject
@@ -15,10 +16,13 @@
 - [ ] COULD check if our JIT response doesn't incure too much performance overhead
 - [ ] COULD Test the various jet helpers through using the app/core
 - [ ] COULD add a more ergonomic .Save method directly to the session that allows for defer with error logging
-- [ ] COULD move the csrf middleware to a new package since but need to fix cyclic dependecy with rd
+- [ ] COULD move the csrf middleware to a new package since but need to fix cyclic dependecy with rd. Or, don't
+            make rd dependant on csrf package
 - [ ] COULD test the rbtest package a bit better
 - [ ] COULD add erroring NoValueDecoder, NoTemplates, NoValidation implementations for 
       respective cores.
+- [ ] COULD add a way to make test requests that include certain session values (and flashes)
+- [x] MUST provide flash functionality out of the box, see _flashbak dir
 - [x] BUG: Calling sessions save multiple times causes multiple cookies with the same name being written
       to the Set-Cookie header
 - [x] Think about translate

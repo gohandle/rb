@@ -56,7 +56,7 @@ func NewCSRFMiddlware(sc SessionCore, ec ErrorCore) CSRFMiddleware {
 			realToken, ok := sc.Session(w, r).Get(CSRFSessionFieldName).([]byte)
 			if !ok || len(realToken) != CSRFTokenLength {
 
-				L(r).Debug("no valid token in session",
+				L(r).Debug("no valid CSRF token in session, generating new one",
 					zap.Bool("present", ok), zap.Int("len", len(realToken)))
 
 				// if not, generate new random bytes

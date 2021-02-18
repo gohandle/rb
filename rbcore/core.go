@@ -62,6 +62,7 @@ func NewDefault(
 			jethelper.NewFieldError(),
 			jethelper.NewNonFieldError(),
 			jethelper.NewCSRF(),
+			jethelper.NewFlashes(),
 		)),
 		rb.NewBindCore(rbplayg.AdaptDecoder(fdec), rbplayg.AdaptValidator(val)),
 		sc,

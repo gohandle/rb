@@ -45,6 +45,7 @@ func HandleFoo(a rb.App) http.Handler {
 		p.Curr = c.Route()
 
 		c.Session().Set("foo", "bar")
+		rb.Flash(c, "flash!")
 
 		return c.Render(rb.Template("foo.html", p), rb.Status(201))
 	})
@@ -59,7 +60,7 @@ func TestFooExample(t *testing.T) {
 	zc, obs := observer.New(zap.DebugLevel)
 	a := rb.New(c, zap.New(zc))
 
-	l.Set("foo.html", `{{.Msg}}: {{.Foo}}: {{.Loc}}: {{.ID}}: {{.Curr}}{{ rb_csrf() }}`)
+	l.Set("foo.html", `{{.Msg}}: {{.Foo}}: {{.Loc}}: {{.ID}}: {{.Curr}}{{ rb_csrf() }}{{rb_flashes()}}`)
 	b.AddMessages(language.English, &i18n.Message{
 		ID:    "page.about.title",
 		Other: "About us",
@@ -73,13 +74,13 @@ func TestFooExample(t *testing.T) {
 	m.Name("foo").Path("/foo/{id}").Handler(HandleFoo(a))
 
 	// setup the request, valid csrf and form submission
-	ccookie, tok := rbtest.GenerateCSRF(t, k)
+	cookie, tok := rbtest.GenerateSession(t, k, c, rb.FlashSessionField, []string{"flash!"})
 	d := strings.NewReader(url.Values{"foo": {"rab"}, rb.CSRFFormFieldName: {tok}}.Encode())
 	w, r := httptest.NewRecorder(), httptest.NewRequest("POST", "/foo/888", d)
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	r.Header.Set("Accept-Language", "nl")
 	r.Header.Set("X-Request-ID", "my-req-id")
-	r.AddCookie(ccookie)
+	r.AddCookie(cookie)
 
 	// serve and assert the response
 	m.ServeHTTP(w, r)
@@ -87,12 +88,17 @@ func TestFooExample(t *testing.T) {
 		t.Fatalf("got: %v %v", w.Code, w.Body.String())
 	}
 
-	if act := w.Body.String(); act != "Over ons 1: rab: /foo/111: 888: foo650YpEeEBF2H88Z88idG6ZWvWiU2eVG6ov9s1HHEg/G5YOSjZgZhEpHMmXNoRVubAMmdaCZ6LffZRGjToCZFuA==" {
+	if act := w.Body.String(); act != "Over ons 1: rab: /foo/111: 888: foo650YpEeEBF2H88Z88idG6ZWvWiU2eVG6ov9s1HHEg/G5YOSjZgZhEpHMmXNoRVubAMmdaCZ6LffZRGjToCZFuA==[flash!]" {
 		t.Fatalf("got: %v", act)
 	}
 
+	// assert the session
 	s := rbtest.ReadSession(t, c, rb.DefaultSessionName, w.Header().Get("Set-Cookie"))
 	if act := s.Get("foo"); act != "bar" {
+		t.Fatalf("got: %v", act)
+	}
+
+	if act := s.Get(rb.FlashSessionField); act.([]string)[0] != "flash!" {
 		t.Fatalf("got: %v", act)
 	}
 

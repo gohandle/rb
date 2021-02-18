@@ -22,6 +22,7 @@ func Adapt(
 	fieldErrHelper jethelper.FieldError,
 	nonFieldErrHelper jethelper.NonFieldError,
 	csrfHelper jethelper.CSRF,
+	flashesHelper jethelper.Flashes,
 ) rb.Templates {
 	if urlHelper != nil {
 		jset.AddGlobalFunc(urlHelper.Name(), jet.Func(urlHelper))
@@ -53,6 +54,10 @@ func Adapt(
 
 	if csrfHelper != nil {
 		jset.AddGlobalFunc(csrfHelper.Name(), jet.Func(csrfHelper))
+	}
+
+	if flashesHelper != nil {
+		jset.AddGlobalFunc(flashesHelper.Name(), jet.Func(flashesHelper))
 	}
 
 	return adapted{jset}
