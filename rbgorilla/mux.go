@@ -19,6 +19,10 @@ type adaptedRouter struct {
 }
 
 func (ar *adaptedRouter) URL(w http.ResponseWriter, r *http.Request, s string, opts ...rb.URLOption) string {
+	if len(s) > 0 && s[0] == '/' {
+		return s
+	}
+
 	route := ar.r.Get(s)
 	if route == nil {
 		rb.L(r).Error("no route with the given name", zap.String("route_name", s))

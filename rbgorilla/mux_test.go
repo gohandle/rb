@@ -21,6 +21,12 @@ func TestGorillaAdapt(t *testing.T) {
 		}
 	})
 
+	t.Run("abs", func(t *testing.T) {
+		if act := rc.URL(nil, nil, "/foo"); act != "/foo" {
+			t.Fatalf("got: %v", act)
+		}
+	})
+
 	t.Run("vars, and current url", func(t *testing.T) {
 		params, route := map[string]string{}, ""
 		mr.Name("bar").Path("/f/{x}/r").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
