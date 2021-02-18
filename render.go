@@ -55,7 +55,7 @@ func (rc *renderCore) Render(w http.ResponseWriter, r *http.Request, rr Render, 
 		L(r).Debug("render implemented header rendering", zap.Int("status_code", o.Code))
 		o.Code, err = hr.RenderHeader(rc, w, r, o.Code)
 		if err != nil {
-			L(r).Debug("error while rendering header", zap.Error(err))
+			L(r).Error("error while rendering header", zap.Error(err))
 			return err
 		}
 	}
@@ -69,7 +69,7 @@ func (rc *renderCore) Render(w http.ResponseWriter, r *http.Request, rr Render, 
 	L(r).Debug("wrote header", zap.Int("status_code", o.Code))
 
 	if err := rr.Render(rc, w, r); err != nil {
-		L(r).Debug("error while rendering body", zap.Error(err))
+		L(r).Error("error while rendering body", zap.Error(err))
 		return err
 	}
 
