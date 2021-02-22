@@ -48,8 +48,9 @@ func (ar *adaptedRouter) Use(mw func(http.Handler) http.Handler) {
 	ar.r.Use(mw)
 }
 
-func (ar *adaptedRouter) Params(w http.ResponseWriter, r *http.Request) map[string]string {
-	return mux.Vars(r)
+func (ar *adaptedRouter) Param(w http.ResponseWriter, r *http.Request, k string) (v string) {
+	v, _ = mux.Vars(r)[k]
+	return
 }
 
 func (ar *adaptedRouter) Route(w http.ResponseWriter, r *http.Request) string {

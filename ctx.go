@@ -14,7 +14,7 @@ type Ctx interface {
 	URL(s string, o ...URLOption) string
 	Translate(m string, o ...TranslateOption) string
 	Request() *http.Request
-	Params() map[string]string
+	Param(k string) string
 	Route() string
 }
 
@@ -55,8 +55,8 @@ func (c *ctx) Translate(m string, o ...TranslateOption) string {
 	return c.core.Translate(c.wr, c.Request(), m, o...)
 }
 
-func (c *ctx) Params() map[string]string {
-	return c.core.Params(c.wr, c.Request())
+func (c *ctx) Param(k string) string {
+	return c.core.Param(c.wr, c.Request(), k)
 }
 
 func (c *ctx) Route() string {

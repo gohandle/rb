@@ -14,7 +14,7 @@ import (
 
 func TestParamsHelper(t *testing.T) {
 	l := jet.NewInMemLoader()
-	l.Set("foo.html", `{{ rb_params()["id"] }}`)
+	l.Set("foo.html", `{{ rb_url_param("id") }}`)
 
 	m := mux.NewRouter()
 	rc := rbgorilla.AdaptRouter(m)

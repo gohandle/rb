@@ -41,7 +41,7 @@ func HandleFoo(a rb.App) http.Handler {
 
 		p.Msg = c.Translate("page.about.title", rb.PluralCount(1))
 		p.Loc = c.URL("foo", rb.URLVar("id", "111"))
-		p.ID = c.Params()["id"]
+		p.ID = c.Param("id")
 		p.Curr = c.Route()
 
 		c.Session().Set("foo", "bar")

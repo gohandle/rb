@@ -28,17 +28,17 @@ func TestGorillaAdapt(t *testing.T) {
 	})
 
 	t.Run("vars, and current url", func(t *testing.T) {
-		params, route := map[string]string{}, ""
+		paramv, route := "", ""
 		mr.Name("bar").Path("/f/{x}/r").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			params = rc.Params(w, r)
+			paramv = rc.Param(w, r, "x")
 			route = rc.Route(w, r)
 		})
 
 		w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/f/y/r", nil)
 		mr.ServeHTTP(w, r)
 
-		if params["x"] != "y" {
-			t.Fatalf("got: %+v", params)
+		if paramv != "y" {
+			t.Fatalf("got: %+v", paramv)
 		}
 
 		if route != "bar" {

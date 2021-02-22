@@ -20,7 +20,7 @@ type Core interface {
 // RouterCore provides part of the core that depends on a router.
 type RouterCore interface {
 	URL(w http.ResponseWriter, r *http.Request, s string, opts ...URLOption) string
-	Params(w http.ResponseWriter, r *http.Request) map[string]string
+	Param(w http.ResponseWriter, r *http.Request, k string) string
 	Route(w http.ResponseWriter, r *http.Request) string
 	Use(func(http.Handler) http.Handler)
 }

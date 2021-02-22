@@ -11,17 +11,17 @@ import (
 type Params jet.Func
 
 // Name defines the name under which the helper is available in jet templates
-func (Params) Name() string { return "rb_params" }
+func (Params) Name() string { return "rb_url_param" }
 
 // NewParams creates the jet template helper for retireving url parameters
 func NewParams(rc rb.RouterCore) Params {
 	return func(args jet.Arguments) (v reflect.Value) {
-		args.RequireNumOfArguments(Params.Name(nil), 0, 0)
+		args.RequireNumOfArguments(Params.Name(nil), 1, 1)
 		w, r, err := respReq(args)
 		if err != nil {
 			args.Panicf("failed to read response and request: %v", err)
 		}
 
-		return reflect.ValueOf(rc.Params(w, r))
+		return reflect.ValueOf(rc.Param(w, r, args.Get(0).String()))
 	}
 }
