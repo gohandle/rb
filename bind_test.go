@@ -25,7 +25,8 @@ func TestDefaultBindCore(t *testing.T) {
 		Foo string `form:"foo" validate:"required"`
 	}
 
-	if submit, err := bc.Bind(w, r, rb.Form(&v), rb.AndValidate()); !submit || err != nil {
+	if submit, err := bc.Bind(w, r,
+		rb.Form(&v), rb.AndValidate(), rb.IfMethod("POST")); !submit || err != nil {
 		t.Fatalf("got: %v %v", submit, err)
 	}
 
@@ -45,4 +46,21 @@ func TestDefaultBindCore(t *testing.T) {
 			t.Fatalf("got: %v", err)
 		}
 	})
+}
+
+func TestBindWrongMethod(t *testing.T) {
+	bc := rb.NewBindCore(
+		rbplayg.AdaptDecoder(form.NewDecoder()),
+		rbplayg.AdaptValidator(validator.New()))
+
+	b := strings.NewReader(url.Values{"foo": {"bar"}}.Encode())
+	w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", b)
+	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	var v interface{}
+	if submit, err := bc.Bind(w, r,
+		rb.Form(&v), rb.AndValidate(), rb.IfMethod("POST")); submit {
+		t.Fatalf("got: %v %v", submit, err)
+	}
+
 }

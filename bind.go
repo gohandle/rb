@@ -17,6 +17,7 @@ type Bind interface {
 // BindOptions hold the resulting binding options
 type BindOptions struct {
 	validate bool
+	ifMethod map[string]struct{}
 }
 
 // BindOption configures any bind
@@ -27,6 +28,20 @@ type BindOption func(*BindOptions)
 func AndValidate() BindOption {
 	return func(o *BindOptions) {
 		o.validate = true
+	}
+}
+
+// IfMethod will configure the bind to only execute if the request is ANY of the configured
+// methods.
+func IfMethod(m ...string) BindOption {
+	return func(o *BindOptions) {
+		if o.ifMethod == nil {
+			o.ifMethod = make(map[string]struct{})
+		}
+
+		for _, mm := range m {
+			o.ifMethod[mm] = struct{}{}
+		}
 	}
 }
 
@@ -47,6 +62,14 @@ func (bc *bindCore) Bind(w http.ResponseWriter, r *http.Request, b Bind, opts ..
 	var o BindOptions
 	for _, opt := range opts {
 		opt(&o)
+	}
+
+	if _, ok := o.ifMethod[r.Method]; !ok && len(o.ifMethod) > 0 {
+		L(r).Debug("no bind, request method doesn't pass check",
+			zap.String("method", r.Method),
+			zap.Any("check", o.ifMethod))
+
+		return false, nil
 	}
 
 	L(r).Debug("start bind",
