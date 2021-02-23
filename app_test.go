@@ -13,6 +13,7 @@ import (
 	"github.com/go-playground/form/v4"
 	"github.com/go-playground/validator/v10"
 	rb "github.com/gohandle/rb"
+	"github.com/gohandle/rb/rbapp"
 	"github.com/gohandle/rb/rbcore"
 	"github.com/gohandle/rb/rbtest"
 	"github.com/gorilla/mux"
@@ -58,7 +59,7 @@ func TestFooExample(t *testing.T) {
 	m, l, k, b := mux.NewRouter(), jet.NewInMemLoader(), make([]byte, 32), i18n.NewBundle(language.English)
 	c := rbcore.NewDefault(m, jet.NewSet(l), form.NewDecoder(), validator.New(), sessions.NewCookieStore(k), b)
 	zc, obs := observer.New(zap.DebugLevel)
-	a := rb.New(c, zap.New(zc))
+	a := rbapp.New(c, zap.New(zc))
 
 	l.Set("foo.html", `{{.Msg}}: {{.Foo}}: {{.Loc}}: {{.ID}}: {{.Curr}}{{ rb_csrf() }}{{rb_flashes()}}`)
 	b.AddMessages(language.English, &i18n.Message{

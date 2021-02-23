@@ -10,6 +10,7 @@ import (
 	"github.com/go-playground/form/v4"
 	"github.com/go-playground/validator/v10"
 	rb "github.com/gohandle/rb"
+	"github.com/gohandle/rb/rbapp"
 	"github.com/gohandle/rb/rbcore"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
@@ -88,7 +89,7 @@ func Example() {
 	// we create the rb.App from the core, it also requires a zap Logger to
 	// report any errors and debug info.
 	logs, _ := zap.NewDevelopment()
-	rba := rb.New(core, logs)
+	rba := rbapp.New(core, logs)
 
 	// create te application dependencies, normally you would connect to a real database
 	db := (*sql.DB)(nil)

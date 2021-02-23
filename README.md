@@ -17,8 +17,8 @@
 - [ ] COULD check if our JIT response doesn't incure too much performance overhead
 - [ ] COULD Test the various jet helpers through using the app/core
 - [ ] COULD add a more ergonomic .Save method directly to the session that allows for defer with error logging
-- [ ] COULD move the csrf middleware to a new package since but need to fix cyclic dependecy with rd. Or, don't
-            make rd dependant on csrf package
+- [ ] COULD move the csrf middleware to a new package
+- [ ] COULD add more testing for the rbapp package
 - [ ] COULD test the rbtest package a bit better
 - [ ] COULD add erroring NoValueDecoder, NoTemplates, NoValidation implementations for 
       respective cores.
