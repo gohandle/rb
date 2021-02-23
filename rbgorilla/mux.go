@@ -2,6 +2,7 @@ package rbgorilla
 
 import (
 	"net/http"
+	"path"
 
 	rb "github.com/gohandle/rb"
 	"github.com/gorilla/mux"
@@ -41,7 +42,12 @@ func (ar *adaptedRouter) URL(w http.ResponseWriter, r *http.Request, s string, o
 		return ""
 	}
 
-	return loc.String()
+	s = loc.String()
+	if o.BasePath != "" {
+		s = path.Join(o.BasePath, s)
+	}
+
+	return s
 }
 
 func (ar *adaptedRouter) Use(mw func(http.Handler) http.Handler) {

@@ -16,7 +16,10 @@ func TestGorillaAdapt(t *testing.T) {
 
 	t.Run("url", func(t *testing.T) {
 		mr.Name("foo").Path("/foo/{pid}/bar")
-		if act := rc.URL(nil, nil, "foo", rb.URLVar("pid", "rab")); act != "/foo/rab/bar" {
+		if act := rc.URL(nil, nil, "foo",
+			rb.URLVar("pid", "rab"),
+			rb.BasePath("/dar"),
+		); act != "/dar/foo/rab/bar" {
 			t.Fatalf("got: %v", act)
 		}
 	})
