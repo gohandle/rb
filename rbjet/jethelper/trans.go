@@ -7,16 +7,11 @@ import (
 	rb "github.com/gohandle/rb"
 )
 
-// Trans is a jet template helper that retrieves url parameters
-type Trans jet.Func
-
-// Name defines the name under which the helper is available in jet templates
-func (Trans) Name() string { return "t" }
-
 // NewTrans creates the jet template helper for retireving url parameters
-func NewTrans(tc rb.TranslateCore) Trans {
-	return func(args jet.Arguments) (v reflect.Value) {
-		args.RequireNumOfArguments(Trans.Name(nil), 1, 2)
+func NewTrans(tc rb.TranslateCore) (string, jet.Func) {
+	const name = "t"
+	return name, func(args jet.Arguments) (v reflect.Value) {
+		args.RequireNumOfArguments(name, 1, 2)
 		w, r, err := respReq(args)
 		if err != nil {
 			args.Panicf("failed to read response and request: %v", err)

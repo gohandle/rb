@@ -8,7 +8,6 @@ import (
 	"github.com/gohandle/rb/rbgorilla"
 	"github.com/gohandle/rb/rbi18n"
 	"github.com/gohandle/rb/rbjet"
-	"github.com/gohandle/rb/rbjet/jethelper"
 	"github.com/gohandle/rb/rbplayg"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
@@ -53,17 +52,7 @@ func NewDefault(
 	rc, tc, sc := rbgorilla.AdaptRouter(router), rbi18n.Adapt(bundle), rb.NewSessionCore(rbgorilla.AdaptSessionStore(ss))
 	return New(
 		rc,
-		rb.NewRenderCore(rbjet.Adapt(jset,
-			jethelper.NewURL(rc),
-			jethelper.NewParams(rc),
-			jethelper.NewRoute(rc),
-			jethelper.NewTrans(tc),
-			jethelper.NewSession(sc),
-			jethelper.NewFieldError(),
-			jethelper.NewNonFieldError(),
-			jethelper.NewCSRF(),
-			jethelper.NewFlashes(),
-		)),
+		rb.NewRenderCore(rbjet.Adapt(jset)),
 		rb.NewBindCore(rbplayg.AdaptDecoder(fdec), rbplayg.AdaptValidator(val)),
 		sc,
 		tc,

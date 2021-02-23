@@ -14,8 +14,7 @@ func TestCSRFHelper(t *testing.T) {
 	l := jet.NewInMemLoader()
 	l.Set("foo.html", `{{ rb_csrf() }}`)
 
-	tmpl, _ := rbjet.Adapt(jet.NewSet(l),
-		nil, nil, nil, nil, nil, nil, nil, jethelper.NewCSRF(), nil).Lookup("foo.html")
+	tmpl, _ := rbjet.Adapt(jet.NewSet(l)).AddHelper(jethelper.NewCSRF()).Lookup("foo.html")
 
 	w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/x/555/y", nil)
 	r = r.WithContext(rb.WithCSRFToken(r.Context(), "foo"))

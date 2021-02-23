@@ -14,8 +14,7 @@ func TestFlashesFHelper(t *testing.T) {
 	l := jet.NewInMemLoader()
 	l.Set("foo.html", `{{ rb_flashes() }}`)
 
-	tmpl, _ := rbjet.Adapt(jet.NewSet(l),
-		nil, nil, nil, nil, nil, nil, nil, nil, jethelper.NewFlashes()).Lookup("foo.html")
+	tmpl, _ := rbjet.Adapt(jet.NewSet(l)).AddHelper(jethelper.NewFlashes()).Lookup("foo.html")
 
 	w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
 	r = r.WithContext(rb.WithFlashMessages(r.Context(), []string{"foo"}))

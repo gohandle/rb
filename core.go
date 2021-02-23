@@ -69,6 +69,7 @@ type ValuesDecoder interface {
 // Templates should provide executable templates by name
 type Templates interface {
 	Lookup(n string) (TemplateExecuter, error)
+	AddHelper(name string, v interface{}) Templates
 }
 
 // TemplateExecuter is the interface that must be implemented by template executers

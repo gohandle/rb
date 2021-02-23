@@ -20,8 +20,8 @@ func TestFieldErrHelper(t *testing.T) {
 		Foo string `validate:"required"`
 	}{})
 
-	tmpl, _ := rbjet.Adapt(jet.NewSet(l), nil, nil, nil, nil, nil,
-		jethelper.NewFieldError(), jethelper.NewNonFieldError(), nil, nil).Lookup("foo.html")
+	tmpl, _ := rbjet.Adapt(jet.NewSet(l)).AddHelper(
+		jethelper.NewFieldError()).AddHelper(jethelper.NewNonFieldError()).Lookup("foo.html")
 
 	vars := jet.VarMap{}
 	vars.Set("err1", err1)

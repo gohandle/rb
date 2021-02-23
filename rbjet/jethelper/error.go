@@ -8,17 +8,11 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-// FieldError is a helper that will show an error if it implements a method
-// that indicates that the error is for a certain field.
-type FieldError jet.Func
-
-// Name defines the name under which the helper is available in jet templates
-func (FieldError) Name() string { return "rb_field_error" }
-
 // NewFieldError actual helper
-func NewFieldError() FieldError {
-	return func(args jet.Arguments) (v reflect.Value) {
-		args.RequireNumOfArguments(FieldError.Name(nil), 2, 2)
+func NewFieldError() (string, jet.Func) {
+	const name = "rb_field_error"
+	return name, func(args jet.Arguments) (v reflect.Value) {
+		args.RequireNumOfArguments(name, 2, 2)
 		fname := args.Get(1).String()
 
 		ok, err := castErrArg(args.Get(0))
@@ -46,17 +40,11 @@ func NewFieldError() FieldError {
 	}
 }
 
-// NonFieldError is a helper that will show an error if it implements a method
-// that indicates that the error is for a certain field.
-type NonFieldError jet.Func
-
-// Name defines the name under which the helper is available in jet templates
-func (NonFieldError) Name() string { return "rb_non_field_error" }
-
 // NewNonFieldError actual helper
-func NewNonFieldError() NonFieldError {
-	return func(args jet.Arguments) (v reflect.Value) {
-		args.RequireNumOfArguments(NonFieldError.Name(nil), 1, 1)
+func NewNonFieldError() (string, jet.Func) {
+	const name = "rb_non_field_error"
+	return name, func(args jet.Arguments) (v reflect.Value) {
+		args.RequireNumOfArguments(name, 1, 1)
 
 		ok, err := castErrArg(args.Get(0))
 		if !ok {

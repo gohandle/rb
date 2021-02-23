@@ -14,53 +14,18 @@ type adapted struct{ *jet.Set }
 // Adapt adapts a jset tmplate set to implement the template directory
 func Adapt(
 	jset *jet.Set,
-	urlHelper jethelper.URL,
-	paramsHelper jethelper.Params,
-	routeHelper jethelper.Route,
-	transHelper jethelper.Trans,
-	sessionHelper jethelper.Session,
-	fieldErrHelper jethelper.FieldError,
-	nonFieldErrHelper jethelper.NonFieldError,
-	csrfHelper jethelper.CSRF,
-	flashesHelper jethelper.Flashes,
 ) rb.Templates {
-	if urlHelper != nil {
-		jset.AddGlobalFunc(urlHelper.Name(), jet.Func(urlHelper))
-	}
-
-	if paramsHelper != nil {
-		jset.AddGlobalFunc(paramsHelper.Name(), jet.Func(paramsHelper))
-	}
-
-	if routeHelper != nil {
-		jset.AddGlobalFunc(routeHelper.Name(), jet.Func(routeHelper))
-	}
-
-	if transHelper != nil {
-		jset.AddGlobalFunc(transHelper.Name(), jet.Func(transHelper))
-	}
-
-	if sessionHelper != nil {
-		jset.AddGlobalFunc(sessionHelper.Name(), jet.Func(sessionHelper))
-	}
-
-	if fieldErrHelper != nil {
-		jset.AddGlobalFunc(fieldErrHelper.Name(), jet.Func(fieldErrHelper))
-	}
-
-	if nonFieldErrHelper != nil {
-		jset.AddGlobalFunc(nonFieldErrHelper.Name(), jet.Func(nonFieldErrHelper))
-	}
-
-	if csrfHelper != nil {
-		jset.AddGlobalFunc(csrfHelper.Name(), jet.Func(csrfHelper))
-	}
-
-	if flashesHelper != nil {
-		jset.AddGlobalFunc(flashesHelper.Name(), jet.Func(flashesHelper))
-	}
-
 	return adapted{jset}
+}
+
+func (a adapted) AddHelper(name string, v interface{}) rb.Templates {
+	hf, ok := v.(jet.Func)
+	if !ok {
+		panic("rbjet: called add helper with invalid value. Must be a jet.Func")
+	}
+
+	a.Set.AddGlobalFunc(name, hf)
+	return a
 }
 
 func (a adapted) Lookup(n string) (rb.TemplateExecuter, error) {

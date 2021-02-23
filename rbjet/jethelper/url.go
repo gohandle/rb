@@ -7,17 +7,12 @@ import (
 	rb "github.com/gohandle/rb"
 )
 
-// URL is a jet template helper that generates urls
-type URL jet.Func
-
-// Name defines the name under which the helper is available in jet templates
-func (URL) Name() string { return "rb_url" }
-
 // NewURL creates the jet template helper for generating urls. It requires that the
 // template has variables for the html request, and response.
-func NewURL(rc rb.RouterCore) URL {
-	return func(args jet.Arguments) (v reflect.Value) {
-		args.RequireNumOfArguments(URL.Name(nil), 1, -1)
+func NewURL(rc rb.RouterCore) (string, jet.Func) {
+	const name = "rb_url"
+	return name, func(args jet.Arguments) (v reflect.Value) {
+		args.RequireNumOfArguments(name, 1, -1)
 
 		w, r, err := respReq(args)
 		if err != nil {
