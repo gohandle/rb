@@ -3,6 +3,7 @@
 - [ ] MUST extend csrf middleware with origin checking: https://github.com/gorilla/csrf/blob/master/csrf.go#L249
 - [ ] MUST provide more indepth coverage of csrf package and carefully thinkg about security implications
 - [ ] MUST add build-in support for setting a language in the session and detecting in translate core
+- [ ] SHOULD add more options for the rbcore/Configured method
 - [ ] SHOULD add an option to make all generated urls on top of a basepath
 - [ ] SHOULD add more c.Translate() options for default message etc
 - [ ] SHOULD Test different form sources
