@@ -18,6 +18,7 @@ func TestFieldErrHelper(t *testing.T) {
 	err1 := errors.New("non-field")
 	err2 := validator.New().Struct(struct {
 		Foo string `validate:"required"`
+		Bar string `validate:"required"`
 	}{})
 
 	tmpl, _ := rbjet.Adapt(jet.NewSet(l)).AddHelper(
@@ -30,6 +31,11 @@ func TestFieldErrHelper(t *testing.T) {
 	w, r := httptest.NewRecorder(), httptest.NewRequest("GET", "/", nil)
 	if err := tmpl.Execute(w, r, vars, nil); err != nil {
 		t.Fatalf("got: %v", err)
+	}
+
+	// should not contain error from bar
+	if act := w.Body.String(); strings.Contains(act, "Bar") {
+		t.Fatalf("got: %v", act)
 	}
 
 	if act := w.Body.String(); !strings.Contains(act, "non-field") {
