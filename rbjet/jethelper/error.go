@@ -31,7 +31,7 @@ func NewFieldError() (string, jet.Func) {
 		if errors.As(err, &verr) {
 			for _, ferr := range verr {
 				if ferr.StructField() == fname {
-					return reflect.ValueOf(err)
+					return reflect.ValueOf(ferr)
 				}
 			}
 		}
