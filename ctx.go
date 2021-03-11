@@ -55,6 +55,7 @@ func (c *ctx) Translate(m string, o ...TranslateOption) string {
 	return c.core.Translate(c.wr, c.Request(), m, o...)
 }
 
+// Param returns the route variable k for the current request.
 func (c *ctx) Param(k string) string {
 	return c.core.Param(c.wr, c.Request(), k)
 }
